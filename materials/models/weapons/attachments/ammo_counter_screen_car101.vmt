@@ -1,0 +1,17 @@
+"VertexLitGeneric"
+{
+	"$surfaceprop" "plastic"
+
+	"$basetexture" "models\weapons\attachments\ammo_counter_screen_car101_col"
+
+	//Start of freehand input from reVaMpT//
+	//"$selfillum" "1"
+	
+	"Proxies"
+	{
+		"BackgroundAmmoColor"
+		{
+			"resultVar"			"$color"
+		}
+	}
+}

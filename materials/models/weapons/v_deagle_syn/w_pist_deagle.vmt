@@ -1,0 +1,14 @@
+"vertexlitgeneric"
+{
+	"$baseTexture" 				"models\weapons\V_deagle_syn\w_pist_deagle"
+	"$bumpmap"					"models\weapons\V_deagle_syn\w_pist_deagle_normal"
+	
+	"$envmap" 					"env_cubemap"
+	"$envmaptint" "[.5 .5 .5]"
+ 	"$envmapcontrast" 1.1
+	"$envmapsaturation" 0.5
+	
+	"$detail"					"models\weapons\V_deagle_syn\Detail_Metal"
+	
+	"$detailscale"				"7"
+}

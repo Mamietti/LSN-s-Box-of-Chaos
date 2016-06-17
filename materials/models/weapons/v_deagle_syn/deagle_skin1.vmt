@@ -1,0 +1,15 @@
+VertexLitGeneric
+{
+	"$basetexture"				"models\weapons\V_deagle_syn\deagle_skin1"
+	"$bumpmap"					"models\weapons\V_deagle_syn\deagle_skin1_normal"
+	
+	"$envmap" 					"env_cubemap"
+	"$envmaptint" "[.5 .5 .5]"
+ 	"$envmapcontrast" 1.1
+	"$envmapsaturation" 0.5
+	
+	"$detail"					"models\weapons\V_deagle_syn\Detail_Metal"
+	
+	"$detailscale"				"7"
+
+}

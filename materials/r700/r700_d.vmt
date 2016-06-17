@@ -1,0 +1,25 @@
+VertexLitGeneric
+{
+
+	// MAIN SETTINGS
+	$basetexture                "R700\r700_d"
+	$bumpmap                    "R700\r700_n"
+
+	// PHONG
+	$phong                      1
+	$phongboost                 0.25
+	$phongfresnelranges         "[1 3 6]"
+	$phongtint                  "[0.8 0.8 1]"
+	$phongexponenttexture       "R700\r700_g"
+	$normalmapalphaphongmask    1
+
+	// ENVIRONMENT MAP
+	$envmap                     env_cubemap
+	$envmaptint                 "[.015 .015 .015]"
+	$envmapfresnel              1
+	$normalmapalphaenvmapmask   1
+
+	$halflambert 1
+	$nocull 1
+
+}

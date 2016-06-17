@@ -1,0 +1,18 @@
+vertexlitgeneric
+{
+
+$baseTexture "R700\aks_tac_d"
+$bumpmap "R700\aks_tac_n"
+$halflambert 1
+
+$phong 1
+$phongboost "1.4"
+$phongexponent 16
+$phongtint "[.85 .85 1]"
+$phongfresnelranges "[.6 1 2]"
+
+//$envmap env_cubemap
+//$normalmapalphaenvmapmask 1
+
+$ambientocclusion 1
+}

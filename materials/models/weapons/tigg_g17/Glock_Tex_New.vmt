@@ -1,0 +1,14 @@
+"VertexLitGeneric"
+{
+	"$basetexture"			"models\weapons\tigg_g17\Glock_Tex_New"
+	"$bumpmap"     			"models\weapons\tigg_g17\Glock_Normal"
+	"$selfillum" "1"
+	"$nocull" "1"
+	"$envmap" "env_cubemap"
+	"$normalmapalphaenvmapmask" "1"
+	"$phong" 		"1"
+	"$phongexponent" 	"40"
+	"$phongboost" "0.75"
+	"$phongfresnelranges" "[1 3 6]"
+}
+
