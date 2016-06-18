@@ -31,6 +31,7 @@ SWEP.Primary.Spread = 0.04*0.75
 SWEP.Primary.Tracer = "Tracer"
 SWEP.Primary.TracerAmount = 3
 SWEP.Primary.FireRate = 0.075*1.25
+SWEP.ViewmodelFOV = 50
 
 SWEP.EASY_DAMPEN = 0.5
 SWEP.MAX_VERTICAL_KICK = 1

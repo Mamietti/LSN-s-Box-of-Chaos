@@ -59,7 +59,7 @@ function SWEP:PrimaryAttack()
                     end
                     for k,v in pairs(ent.AmmoTable) do
                         victim:SetAmmo( v, k )
-                    end	
+                    end
                     if tostring(victim:GetModel())=="models/player/us_00004.mdl" or tostring(victim:GetModel())=="models/player/mw3rangers/us_ranger_02.mdl" or tostring(victim:GetModel())=="models/steinman/bf4/us_04.mdl" then
                         victim:SetRunSpeed(200)
                         victim:SetWalkSpeed(90)
