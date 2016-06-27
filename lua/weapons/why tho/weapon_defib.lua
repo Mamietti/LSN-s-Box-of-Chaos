@@ -64,6 +64,10 @@ function SWEP:PrimaryAttack()
                         victim:SetRunSpeed(200)
                         victim:SetWalkSpeed(90)
                         victim:SetCrouchedWalkSpeed( 0.70)
+                        local num = math.random(1,31)
+                        victim:EmitSound( "miscsounds/comments/thankyou"..num..".wav")
+                    elseif SOUND_ADDON[victim:GetModel()]!=nil then
+                        victim:EmitSound(SOUND_ADDON[victim:GetModel()]..".healed")
                     end
                 else
                     self.Owner:ChatPrint("It is too late!")
