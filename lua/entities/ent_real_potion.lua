@@ -51,6 +51,7 @@ function ENT:Use( activator, caller )
 		activator:SetRunSpeed(200)
 		activator:SetWalkSpeed(90)
 		activator:SetCrouchedWalkSpeed( 0.70) 
+        activator:SetArmor
 	end
 	self:Remove()
 end

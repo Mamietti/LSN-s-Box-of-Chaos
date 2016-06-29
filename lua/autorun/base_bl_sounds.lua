@@ -30,30 +30,26 @@ end )
 
 hook.Add( "OnNPCKilled", "playerGaigeHappyTest", function( victim, owner, weapon )
 	if owner!=nil then
-        if owner.KillHeal!=nil and owner.KillHeal then
-            if owner:GetModel()!=nil and SOUND_ADDON[owner:GetModel()] then
-                local prefix = tostring(SOUND_ADDON[owner:GetModel()])
-                if owner.NextKill==nil then
-                    owner.NextKill = CurTime()
-                end
-                if owner.NextKill!=nil and CurTime()>owner.NextKill then
-                    if victim:GetMaxHealth()==nil or victim:GetMaxHealth()<150 then
-                        if math.random(1,2)==1 then
-                            owner:EmitSound(prefix..".kill")
-                            owner.NextKill = CurTime() + SoundDuration(prefix..".kill") + 0.1
-                        else
-                            owner.NextKill = CurTime()+ 0.1
-                        end
+        if owner:GetModel()!=nil and SOUND_ADDON[owner:GetModel()] then
+            local prefix = tostring(SOUND_ADDON[owner:GetModel()])
+            if owner.NextKill==nil then
+                owner.NextKill = CurTime()
+            end
+            if owner.NextKill!=nil and CurTime()>owner.NextKill then
+                if victim:GetMaxHealth()==nil or victim:GetMaxHealth()<150 then
+                    if math.random(1,2)==1 then
+                        owner:EmitSound(prefix..".kill")
+                        owner.NextKill = CurTime() + SoundDuration(prefix..".kill") + 0.1
                     else
-                        owner:EmitSound(prefix..".own")
-                        owner.NextKill = CurTime()+ SoundDuration(prefix..".own") + 0.1
+                        owner.NextKill = CurTime()+ 0.1
                     end
                 else
-                    owner.NextKill = CurTime()+ 0.1
+                    owner:EmitSound(prefix..".own")
+                    owner.NextKill = CurTime()+ SoundDuration(prefix..".own") + 0.1
                 end
+            else
+                owner.NextKill = CurTime()+ 0.1
             end
-        else
-            owner.KillHeal = false
         end
 	end
 end )

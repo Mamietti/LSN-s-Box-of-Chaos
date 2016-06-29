@@ -29,6 +29,13 @@ SWEP.MaxAmmo				= 100	-- Maxumum ammo
 
 local DenySound = Sound( "WallHealth.Deny" )
 
+function SWEP:DrawWeaponSelection( x, y, wide, tall, alpha )
+	surface.SetDrawColor( Color(255, 220, 0, 255) )
+    surface.SetMaterial( Material("vgui/entites/weapon_defib.vmt") )
+	--surface.DrawText( "b" )
+    surface.DrawTexturedRect( x, y+tall*0.2, wide, tall/2)--, 0, 0.53, 0.65, 0.7 )
+end
+
 function SWEP:Initialize()
 
 	self:SetHoldType( "duel" )
@@ -46,7 +53,7 @@ function SWEP:PrimaryAttack()
 		if ent:GetOwner()!=nil then
             if ent.GunTable!=nil then
                 sound.Play("weapons/neon_sign_hit_0"..math.random(1,4)..".wav", ent:GetPos())
-                if CurTime() - ent.DeathTime < 30 then
+                if CurTime() - ent.DeathTime < 120 then
                     self:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
                     self:SetNextPrimaryFire( CurTime() + self:SequenceDuration() + 0.5 )
                     self.Owner:SetAnimation( PLAYER_ATTACK1 )
@@ -60,7 +67,7 @@ function SWEP:PrimaryAttack()
                     for k,v in pairs(ent.AmmoTable) do
                         victim:SetAmmo( v, k )
                     end
-                    if tostring(victim:GetModel())=="models/player/us_00004.mdl" or tostring(victim:GetModel())=="models/player/mw3rangers/us_ranger_02.mdl" or tostring(victim:GetModel())=="models/steinman/bf4/us_04.mdl" then
+                    if tostring(victim:GetModel())=="models/player/us_00004.mdl" or tostring(victim:GetModel())=="models/player/mw3rangers/us_ranger_01.mdl" or tostring(victim:GetModel())=="models/player/mw3rangers/us_ranger_02.mdl" or tostring(victim:GetModel())=="models/steinman/bf4/us_04.mdl" then
                         victim:SetRunSpeed(200)
                         victim:SetWalkSpeed(90)
                         victim:SetCrouchedWalkSpeed( 0.70)

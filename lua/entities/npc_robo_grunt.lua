@@ -21,6 +21,7 @@ AccessorFunc(ENT,"m_fMaxYawSpeed","MaxYawSpeed",FORCE_NUMBER)
 AccessorFunc(ENT,"m_flFieldOfView", "Fido", FORCE_NUMBER)
 AccessorFunc(ENT, "m_flNextAttack", "NextAttack")
 AccessorFunc(ENT,"m_hEnemy","Enemy")
+AccessorFunc(ENT,"wakesquad","WakeSquad", FORCE_BOOLEAN)
 
 if CLIENT then
     function ENT:Draw()
@@ -33,23 +34,28 @@ end
 
 function ENT:Initialize()
     --self:SetModel("models/combine_super_soldier.mdl")
-    self:SetModel("models/player/mp/tobo/robo.mdl")
+    self:SetModel("models/ports/robogrunt_blue.mdl")
     self:SetSolid( SOLID_BBOX )
     self:SetMoveType( MOVETYPE_STEP )
 	--self.Entity:SetCollisionBounds( Vector(-32,-32,0), Vector(32,32,100) )
 	--self:SetCollisionGroup(COLLISION_GROUP_PLAYER)
-    if SERVER then
-        self:CapabilitiesAdd( bit.bor(CAP_MOVE_GROUND, CAP_MOVE_JUMP, CAP_OPEN_DOORS, CAP_SQUAD, CAP_INNATE_RANGE_ATTACK1) )
-        self:SetSchedule(SCHED_FALL_TO_GROUND)
-        self:SetNPCState(NPC_STATE_IDLE)
-        self:SetEnemy(nil)
-    end
+    self:SetBodygroup(1,2)
     self:SetHealth(60)
-    self:SetNPCClass(CLASS_COMBINE)
+    self:SetNPCClass(CLASS_ROBOT)
+    if SERVER then
+        self:AddRelationship( "player D_HT 99" )
+    end
     self:SetMaxYawSpeed(300)
     self:SetFido(90)
     self:SetKeyValue( "spawnflags", "256" )
     self:SetNextAttack(CurTime())
+    self:SetWakeSquad(true)
+    if SERVER then
+        self:CapabilitiesAdd( bit.bor(CAP_MOVE_GROUND, CAP_OPEN_DOORS, CAP_SQUAD, CAP_INNATE_RANGE_ATTACK1, CAP_MOVE_JUMP, CAP_MOVE_SHOOT, CAP_DUCK, CAP_AIM_GUN) )
+        self:SetNPCState(NPC_STATE_IDLE)
+        self:SetSchedule(SCHED_FALL_TO_GROUND)
+        self:SetEnemy(nil)
+    end
     --PrintTable(self:GetSaveTable())
 end
 
@@ -129,9 +135,9 @@ function ENT:Think()
                 self:SetNextAttack(CurTime()+0.2)
             end
         else
-            if CurTime()>self:GetNextAttack()+0.1 then
-                self:RemoveAllGestures()
-            end
+            --if CurTime()>self:GetNextAttack()+0.1 then
+                --self:RemoveAllGestures()
+            --end
         end
     end
 end
@@ -140,8 +146,8 @@ if SERVER then
         if self:GetEnemy() and self:GetEnemy():Health()>0 then
             if self:GetNPCState()==NPC_STATE_IDLE then
                 self:EmitSound("NPC_CombineCamera.Alert")
+                self:SetNPCState(NPC_STATE_ALERT)
             end
-            self:SetNPCState(NPC_STATE_ALERT)
             if self:HasLOS(self:GetEnemy()) then
                 if self:GetEnemy():GetPos():Distance(self:GetPos())<100 then
                     if self:GetEnemy():GetPos():Distance(self:GetPos())>60 then
@@ -156,7 +162,7 @@ if SERVER then
                 self:SetSchedule(SCHED_CHASE_ENEMY)
             end
         else
-            self:SetSchedule(SCHED_IDLE_WALK)
+            self:SetSchedule(SCHED_IDLE_WANDER)
         end
     end
 end
