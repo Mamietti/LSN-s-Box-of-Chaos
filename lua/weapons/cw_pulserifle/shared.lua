@@ -2,14 +2,14 @@ AddCSLuaFile()
 AddCSLuaFile("sh_sounds.lua")
 include("sh_sounds.lua")
 
-SWEP.UseHands = true
+--SWEP.UseHands = true
 if CLIENT then
 	SWEP.DrawCrosshair = false
 	SWEP.PrintName = "Pulse Rifle"
 	SWEP.CSMuzzleFlashes = true
 	
-    SWEP.IronSightsPos = Vector(-5.841, -8.04, 1.21)
-    SWEP.IronSightsAng = Vector(0, 0, 0)
+	SWEP.IronsightPos = Vector(-2.441, -3.83, 0.908) -- Vector(-2.441, -3.83, 0.908)
+	SWEP.IronsightAng = Vector(0, -0.401, 0)
 	
 	SWEP.AimpointPos = Vector(-2.371, -2.59, -0.925)
 	SWEP.AimpointAng = Vector(0, 0, 0)
@@ -44,20 +44,22 @@ if CLIENT then
 	SWEP.ShellPosOffset = {x = -2, y = 0, z = -3}
 	SWEP.SightWithRail = true
 	
-	SWEP.BoltBone = "bolt1"
-	SWEP.BoltShootOffset = Vector(0, 0, 5)
+	SWEP.BoltBone = "shuan"
+	SWEP.BoltShootOffset = Vector(4, 0, 0)
 	SWEP.OffsetBoltOnBipodShoot = true
 
 	SWEP.AttachmentModelsVM = {
-		["md_rail"] = {model = "models/wystan/attachments/akrailmount.mdl", bone = "base", pos = Vector(-0.077, -0.245, 1.041), angle = Angle(0, -90, 0), size = Vector(1, 1, 1)},
-		["md_eotech"] = {model = "models/wystan/attachments/2otech557sight.mdl", bone = "base", pos = Vector(11.609, 0.275, -7.834), adjustment = {min = 9, max = 11.609, axis = "x", inverse = true, inverseDisplay = true}, angle = Angle(0, 180, 0), size = Vector(1, 1, 1)},
-		["md_aimpoint"] = {model = "models/wystan/attachments/aimpoint.mdl", bone = "base", pos = Vector(6.6, -0.247, -2.79), adjustment = {min = 4, max = 6.6, axis = "x", inverse = true}, angle = Angle(0, -90, 0), size = Vector(1, 1, 1)},
-		["md_pbs1"] = {model = "models/cw2/attachments/pbs1.mdl", bone = "base", pos = Vector(-19.57, 0, -0.816), angle = Angle(0, 90, 0), size = Vector(1, 1, 1)},
-		["md_kobra"] = {model = "models/cw2/attachments/kobra.mdl", bone = "base", pos = Vector(0.731, 0.388, -1.538), angle = Angle(0, 90, 0), size = Vector(0.6, 0.6, 0.6)},
-		["md_pso1"] = {model = "models/cw2/attachments/pso.mdl", bone = "base", pos = Vector(5.521, -0.174, -1.107), angle = Angle(0, 90, 0), size = Vector(0.8, 0.8, 0.8)},
-		["md_schmidt_shortdot"] = {model = "models/cw2/attachments/schmidt.mdl", bone = "base", pos = Vector(4.558, -0.302, -1.67), angle = Angle(0, 180, 0), size = Vector(0.8, 0.8, 0.8)}
+		["md_rail"] = {model = "models/wystan/attachments/rail.mdl", bone = "qianhua", rel = "", pos = Vector(0.699, 1.458, 0.2), angle = Angle(0, 0, -90), size = Vector(1, 1, 1)},
+		["md_eotech"] = {model = "models/wystan/attachments/2otech557sight.mdl", bone = "qianhua", pos = Vector(0.699, 1.258, 0.2), adjustment = {min = 9, max = 11.609, axis = "x", inverse = true, inverseDisplay = true}, angle = Angle(0, 0, -90), size = Vector(1, 1, 1)},
+		["md_aimpoint"] = {model = "models/wystan/attachments/aimpoint.mdl", bone = "qianhua", pos = Vector(6.6, -0.247, -2.79), adjustment = {min = 4, max = 6.6, axis = "x", inverse = true}, angle = Angle(0, -90, 0), size = Vector(1, 1, 1)},
+		["md_pbs1"] = {model = "models/cw2/attachments/pbs1.mdl", bone = "qianhua", pos = Vector(-19.57, 0, -0.816), angle = Angle(0, 90, 0), size = Vector(1, 1, 1)},
+		["md_kobra"] = {model = "models/cw2/attachments/kobra.mdl", bone = "qianhua", pos = Vector(0.731, 0.388, -1.538), angle = Angle(0, 90, 0), size = Vector(0.6, 0.6, 0.6)},
+		["md_pso1"] = {model = "models/cw2/attachments/pso.mdl", bone = "qianhua", pos = Vector(5.521, -0.174, -1.107), angle = Angle(0, 90, 0), size = Vector(0.8, 0.8, 0.8)},
+		["md_schmidt_shortdot"] = {model = "models/cw2/attachments/schmidt.mdl", bone = "qianhua", pos = Vector(4.558, -0.302, -1.67), angle = Angle(0, 180, 0), size = Vector(0.8, 0.8, 0.8)}
 	}
-
+SWEP.VElements = {
+	["md_rail"] = { type = "Model", model = "models/wystan/attachments/rail.mdl", bone = "qianhua", rel = "", pos = Vector(0.699, 1.258, 0.2), angle = Angle(0, 0, -90), size = Vector(1, 1, 1), color = Color(255, 255, 255, 255), surpresslightning = false, material = "", skin = 0, bodygroup = {} }
+}
 	SWEP.ShortDotPos = Vector(-2.428, -4.107, -0.721)
 	SWEP.ShortDotAng = Vector(0, 0, 0)
 		
@@ -85,16 +87,16 @@ SWEP.Attachments = {[1] = {header = "Sight", offset = {800, -500},  atts = {"md_
 	[5] = {header = "Stock", offset = {700, 500}, atts = {"bg_ak74foldablestock", "bg_ak74heavystock"}},
 	["+reload"] = {header = "Ammo", offset = {800, 0}, atts = {"am_magnum", "am_matchgrade"}}}
 
-SWEP.Animations = {fire = {"ir_fire", "ir_fire", "ir_fire"},
-	reload = "ir_reload",
-	idle = "ir_idle",
-	draw = "ir_draw"}
+SWEP.Animations = {fire = {"fire"},
+	reload = "reload",
+	idle = "idle",
+	draw = "deploy"}
 	
 SWEP.Sounds = {	draw = {{time = 0, sound = "CW_FOLEY_MEDIUM"}},
 
-	reload = {[1] = {time = 0.33, sound = "CW_AK74_MAGOUT"},
-	[2] = {time = 1.13, sound = "CW_AK74_MAGIN"},
-	[3] = {time = 1.9, sound = "CW_AK74_BOLTPULL"}}}
+	reload = {[1] = {time = 0.33, sound = "CW_HPR_MAGOUT"},
+	[2] = {time = 1.13, sound = "CW_HPR_MAGIN"},
+	[3] = {time = 1.9, sound = "CW_HPR_BOLTPULL"}}}
 
 SWEP.SpeedDec = 30
 
@@ -113,8 +115,8 @@ SWEP.Instructions	= ""
 
 SWEP.ViewModelFOV	= 70
 SWEP.ViewModelFlip	= false
-SWEP.ViewModel		= "models/weapons/c_irifle.mdl"
-SWEP.WorldModel		= "models/weapons/w_irifle.mdl"
+SWEP.ViewModel		= "models/v_models/v_76rif.mdl"
+SWEP.WorldModel		= "models/w_models/weapons/w_rifle_sol76.mdl"
 
 SWEP.Spawnable			= true
 SWEP.AdminSpawnable		= true
@@ -122,11 +124,11 @@ SWEP.AdminSpawnable		= true
 SWEP.Primary.ClipSize		= 30
 SWEP.Primary.DefaultClip	= 30
 SWEP.Primary.Automatic		= true
-SWEP.Primary.Ammo			= "5.45x39MM"
+SWEP.Primary.Ammo			= "GaussEnergy"
 
 SWEP.FireDelay = 0.092307692307692
-SWEP.FireSound = "CW_AK74_FIRE"
-SWEP.FireSoundSuppressed = "CW_AK74_FIRE_SUPPRESSED"
+SWEP.FireSound = "CW_HPR_FIRE"
+SWEP.FireSoundSuppressed = "CW_HPR_FIRE_SUPPRESSED"
 SWEP.Recoil = 1.2
 
 SWEP.HipSpread = 0.043

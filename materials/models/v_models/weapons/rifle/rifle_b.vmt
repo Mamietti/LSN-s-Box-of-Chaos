@@ -1,0 +1,15 @@
+VertexLitGeneric
+{
+$baseTexture "models\v_models\Weapons\rifle/rifle_B"
+$selfillum 1
+$phong 1
+$phongboost .10
+$phongalbedotint 1
+	Proxies
+	{
+		PlayerWeaponColor
+		{
+			resultVar	$selfillumtint
+		}
+	}
+}

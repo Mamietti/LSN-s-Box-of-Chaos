@@ -32,8 +32,8 @@ function ENT:SetAutomaticFrameAdvance( bUsingAnim )
 end
 
 function ENT:Initialize()
-    self:SetModel("models/chicken/chicken.mdl")
-    --self:SetModel("models/headcrabclassic.mdl")
+    --self:SetModel("models/chicken/chicken.mdl")
+    self:SetModel("models/npcs/monsters/monster_a.mdl")
     self:SetSolid( SOLID_BBOX )
     self:SetMoveType( MOVETYPE_STEP )
 	self.Entity:SetCollisionBounds( Vector(-32,-32,0), Vector(32,32,100) )

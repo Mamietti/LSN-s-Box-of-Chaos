@@ -50,8 +50,7 @@ function ENT:Use( activator, caller )
 		self:EmitSound(Sound("misc/halloween/merasmus_appear.wav"))
 		activator:SetRunSpeed(200)
 		activator:SetWalkSpeed(90)
-		activator:SetCrouchedWalkSpeed( 0.70) 
-        activator:SetArmor
+		activator:SetCrouchedWalkSpeed( 0.70)
 	end
 	self:Remove()
 end

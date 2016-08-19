@@ -30,10 +30,10 @@ SWEP.MaxAmmo				= 100	-- Maxumum ammo
 local DenySound = Sound( "WallHealth.Deny" )
 
 function SWEP:DrawWeaponSelection( x, y, wide, tall, alpha )
-	surface.SetDrawColor( Color(255, 220, 0, 255) )
-    surface.SetMaterial( Material("vgui/entites/weapon_defib.vmt") )
+	surface.SetDrawColor( Color(255, 225, 225, 255) )
+    surface.SetMaterial( Material("vgui/entities/weapon_defib.vmt") )
 	--surface.DrawText( "b" )
-    surface.DrawTexturedRect( x, y+tall*0.2, wide, tall/2)--, 0, 0.53, 0.65, 0.7 )
+    surface.DrawTexturedRect( x, y, tall, tall)--, 0, 0.53, 0.65, 0.7 )
 end
 
 function SWEP:Initialize()

@@ -16,7 +16,7 @@ SWEP.FiresUnderwater = false
 SWEP.Dual = false
 SWEP.ReloadSound = "Weapon_SMG1.Reload"
 
-SWEP.Primary.ClipSize		= 90
+SWEP.Primary.ClipSize		= 45
 SWEP.Primary.DefaultClip	= 90
 SWEP.Primary.Automatic		= true
 SWEP.Primary.Ammo			= "SMG1"
@@ -150,7 +150,9 @@ function SWEP:FireRound()
     bullet.TracerName = self.Primary.Tracer
     bullet.Damage	= GetConVarNumber( self.Primary.DamageBase ) * self.Primary.DamageMult
     bullet.Force = self.Primary.Force
-    bullet.Callback = self:CallBack(attacker, trace, dmginfo)
+    bullet.Callback = function(attacker, trace, dmginfo)
+        self:CallBack(attacker, trace, dmginfo)
+    end
     self.Owner:FireBullets(bullet)
     self:TakePrimaryAmmo(1)
 end

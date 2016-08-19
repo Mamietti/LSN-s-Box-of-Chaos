@@ -41,7 +41,7 @@ function ENT:Initialize()
 	--self:SetCollisionGroup(COLLISION_GROUP_PLAYER)
     self:SetBodygroup(1,2)
     self:SetHealth(60)
-    self:SetNPCClass(CLASS_ROBOT)
+    self:SetNPCClass(CLASS_CITIZEN_REBEL)
     if SERVER then
         self:AddRelationship( "player D_HT 99" )
     end
