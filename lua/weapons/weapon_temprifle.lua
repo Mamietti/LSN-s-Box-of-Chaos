@@ -28,7 +28,7 @@ SWEP.Primary.DamageBase = "sk_plr_dmg_ar2"
 SWEP.Primary.DamageMult = 1
 SWEP.Primary.FireSound = "Weapon_TEMP.Single"
 SWEP.Primary.Number = 1
-SWEP.Primary.Spread = 0.03
+SWEP.Primary.Spread = 0.02
 SWEP.Primary.Tracer = ""
 SWEP.Primary.FireRate = 0.07
 
@@ -95,16 +95,18 @@ function SWEP:SecondaryAttack()
         self:SendWeaponAnim(ACT_VM_SECONDARYATTACK)
         self:EmitSound("Weapon_TEMP.Double")
         local Forward = self.Owner:EyeAngles():Forward()
-        local e = ents.Create("rpg_missile")
-        e:SetPos(self.Owner:GetShootPos())
-        e:SetAngles(self.Owner:EyeAngles())
-        e:Spawn()
-        e:SetOwner(self.Owner)
-        e:SetVelocity(Forward*1500)
-        e:SetSaveValue("m_flDamage", 100)
-        e:SetCollisionGroup(COLLISION_GROUP_INTERACTIVE_DEBRIS)
-        self:TakeSecondaryAmmo(1)
-        self.Owner:ViewPunch(Angle(-5,1*math.Rand(-1,1),1*math.Rand(-1,1)) )
+        if SERVER then
+            local e = ents.Create("rpg_missile")
+            e:SetPos(self.Owner:GetShootPos())
+            e:SetAngles(self.Owner:EyeAngles())
+            e:Spawn()
+            e:SetOwner(self.Owner)
+            e:SetVelocity(Forward*1500)
+            e:SetSaveValue("m_flDamage", 100)
+            e:SetCollisionGroup(COLLISION_GROUP_INTERACTIVE_DEBRIS)
+            self:TakeSecondaryAmmo(1)
+            self.Owner:ViewPunch(Angle(-5,1*math.Rand(-1,1),1*math.Rand(-1,1)) )
+        end
         timer.Create( "weapon_idle" .. self:EntIndex(), 0.5, 1, function() if ( IsValid( self ) ) then self:SendWeaponAnim( ACT_VM_IDLE ) end end )
     else
         self:EmitSound("Weapon_IRifle.Empty")

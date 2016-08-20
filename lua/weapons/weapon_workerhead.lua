@@ -21,12 +21,12 @@ SWEP.Primary.Automatic		= true
 SWEP.Primary.Ammo			= "Hornet"
 SWEP.Primary.DamageBase = "sk_plr_dmg_smg1"
 SWEP.Primary.DamageMult = 1
-SWEP.Primary.FireSound = "Weapon_Hornetgun.Single"
+SWEP.Primary.FireSound = "NPC_Antlion.PoisonShoot"
 SWEP.Primary.EmptySound = "Weapon_IRifle.Empty"
 SWEP.Primary.Number = 1
 SWEP.Primary.Spread = 0.1
 SWEP.Primary.Tracer = "Tracer"
-SWEP.Primary.FireRate = 0.25
+SWEP.Primary.FireRate = 0.5
 SWEP.Primary.Recoil = 0.5
 SWEP.Primary.AccMult = 2
 SWEP.Primary.AccThreshold = 10
@@ -56,15 +56,15 @@ function SWEP:DrawWorldModel()
 	else
 		local hand, offset, rotate
 		hand = self.Owner:GetAttachment(self.Owner:LookupAttachment("anim_attachment_rh"))
-		offset = hand.Ang:Right() * 0 + hand.Ang:Forward() * 2 + hand.Ang:Up() * 0
+		offset = hand.Ang:Right() * 0 + hand.Ang:Forward() * -3 + hand.Ang:Up() * -10
 
 		hand.Ang:RotateAroundAxis(hand.Ang:Right(), 20)
 		hand.Ang:RotateAroundAxis(hand.Ang:Forward(), 0)
-		hand.Ang:RotateAroundAxis(hand.Ang:Up(), 170)
+		hand.Ang:RotateAroundAxis(hand.Ang:Up(), 0)
 
 		self:SetRenderOrigin(hand.Pos + offset)
 		self:SetRenderAngles(hand.Ang)
-        self:SetModelScale( 1, 0)
+        self:SetModelScale( 0.5, 0)
 
 		self:DrawModel()
 	end
@@ -79,29 +79,29 @@ function SWEP:Initialize()
 end
 
 function SWEP:PrimaryAttack()
-	if self.Owner:IsNPC() or self:Ammo1()>0 then
+	if self.Owner:IsNPC() or self:Ammo1()>1 then
 		if (!self.FiresUnderwater and self.Owner:WaterLevel()!=3) or self.FiresUnderwater then
 			self:EmitSound( self.Primary.FireSound )
 			self:SetNextPrimaryFire( CurTime() + self.Primary.FireRate)
             if !self.Owner:IsNPC() then
-                self:TakePrimaryAmmo(1)
+                self:TakePrimaryAmmo(2)
                 self:ShootEffects(self)
                 self:SendWeaponAnim( ACT_RANGE_ATTACK1 ) 
             end
             local Forward = self.Owner:EyeAngles():Forward()
             local Right = self.Owner:EyeAngles():Right()
             local Up = self.Owner:EyeAngles():Up()
-            local ent = ents.Create( "hornet" )
-            if ( IsValid( ent ) ) then
-                ent:SetPos( self.Owner:GetShootPos() + Forward * 32 + Right * 5 - Up * 5 )
-                ent:SetAngles( self.Owner:EyeAngles() )
-                ent:Spawn()
-                ent:SetVelocity( Forward * 800 )
-                ent:SetOwner( self.Owner )
-                --PrintTable(ent:GetSaveTable())
-                --ent:SetModel("models/gibs/antlion_gib_small_1.mdl")
-                ent:SetSaveValue("m_iHornetType", 2)
-                --ent:SetMoveType(MOVETYPE_FLYGRAVITY)
+            if SERVER then
+                local ent = ents.Create( "grenade_spit" )
+                if ( IsValid( ent ) ) then
+                    ent:SetPos( self.Owner:GetShootPos() + Forward * 32 + Right * 5 - Up * 5 )
+                    ent:SetAngles( self.Owner:EyeAngles() )
+                    ent:Spawn()
+                    ent:SetVelocity( Forward * 1600 )
+                    ent:SetOwner( self.Owner )
+                    PrintTable(ent:GetSaveTable())
+                    --ent:SetSaveValue("m_iHornetType", 2)
+                end
             end
             self.NextRegain = CurTime() + 1
             timer.Create( "weapon_idle" .. self:EntIndex(), self:SequenceDuration(), 1, function() if ( IsValid( self ) ) then self:SendWeaponAnim( ACT_IDLE ) end end )
