@@ -1,7 +1,7 @@
 SWEP.PrintName			= "Accurized Placeholder"
 SWEP.Author			= "Strafe"
 SWEP.Instructions	= ""
-SWEP.Category	= "Half-Life 2 Plus"
+SWEP.Category	= "Lazy Swep-ensteins"
 SWEP.Purpose = "[WIP]FIXME"
 SWEP.Spawnable			= true
 SWEP.AdminOnly			= false
@@ -9,23 +9,23 @@ SWEP.UseHands			= true
 SWEP.Slot				= 2
 SWEP.SlotPos			= 2
 SWEP.DrawAmmo			= true
-SWEP.ViewModel			= "models/v_models/v_desert_rifle.mdl"
+SWEP.ViewModel			= "models/weapons/cstrike/c_rif_galil.mdl"
 SWEP.ViewModelFlip = false
-SWEP.WorldModel			= "models/w_models/weapons/w_desert_rifle.mdl"
+SWEP.WorldModel			= "models/weapons/w_rif_galil.mdl"
 SWEP.CSMuzzleFlashes	= false
 SWEP.HoldType			= "ar2"
 SWEP.FiresUnderwater = false
 SWEP.Dual = false
 SWEP.ReloadSound = "Weapon_TEMP.Reload"
 SWEP.Base = "weapon_hl2_base_strafe"
-SWEP.ViewModelFOV = 70
+SWEP.ViewModelFOV = 60
 
 SWEP.Primary.ClipSize		= 30
 SWEP.Primary.DefaultClip	= 30
 SWEP.Primary.Automatic		= true
 SWEP.Primary.Ammo			= "SMG1"
 SWEP.Primary.DamageBase = "sk_plr_dmg_ar2"
-SWEP.Primary.DamageMult = 1
+SWEP.Primary.DamageMult = 2.5
 SWEP.Primary.FireSound = "Weapon_TEMP.Single"
 SWEP.Primary.Number = 1
 SWEP.Primary.Spread = 0.02
@@ -77,7 +77,7 @@ function SWEP:CallBack(attacker, trace, dmginfo)
     fax:SetStart(trace.HitPos)
     fax:SetOrigin(self.Owner:GetShootPos())
     fax:SetNormal(trace.HitNormal)
-    fax:SetAttachment(3)
+    fax:SetAttachment(1)
     util.Effect("evil_tracer",fax)
 	local fx 		= EffectData()
 	fx:SetEntity(self)
@@ -113,6 +113,7 @@ function SWEP:SecondaryAttack()
         self:SetNextSecondaryFire(CurTime() + 0.5)
     end
 end
+if SERVER then
 function SWEP:DrawWorldModel()
 	if not self.Owner:IsValid() then
 		self:DrawModel()
@@ -131,6 +132,7 @@ function SWEP:DrawWorldModel()
 
 		self:DrawModel()
 	end
+end
 end
 
 function SWEP:Deploy()

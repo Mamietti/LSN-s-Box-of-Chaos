@@ -92,7 +92,7 @@ end
 
 function SWEP:PrimaryAttack()
 	--if ( !self:CanPrimaryAttack() ) then return end
-	if (self:Clip1()<0 and (self.Owner:IsNPC() or self:Ammo1()>=self.Primary.AmmoTake)) or self:Clip1()>=self.Primary.AmmoTake then
+	if (self:Clip1()==-1 and (self.Owner:IsNPC() or self:Ammo1()>=self.Primary.AmmoTake)) or self:Clip1()>=self.Primary.AmmoTake then
 		if (!self.FiresUnderwater and self.Owner:WaterLevel()!=3) or self.FiresUnderwater then
             self:HandleFunc()
             self:WithFire()
