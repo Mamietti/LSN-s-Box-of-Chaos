@@ -99,7 +99,7 @@ function SWEP:PrimaryAttack()
                     ent:Spawn()
                     ent:SetVelocity( Forward * 1600 )
                     ent:SetOwner( self.Owner )
-                    PrintTable(ent:GetSaveTable())
+                    --PrintTable(ent:GetSaveTable())
                     --ent:SetSaveValue("m_iHornetType", 2)
                 end
             end
@@ -114,7 +114,7 @@ function SWEP:Think()
     if self:Ammo1()>8 then
         self.Owner:SetAmmo(8, "Hornet")
     end
-    if self.NextRegain!=nil and CurTime()>=self.NextRegain and self:Clip1()<8 then
+    if self.NextRegain!=nil and CurTime()>=self.NextRegain and self:Ammo1()<8 then
         self.Owner:SetAmmo(self:Ammo1()+1, "Hornet")
         self.NextRegain = CurTime() + 0.5
     end

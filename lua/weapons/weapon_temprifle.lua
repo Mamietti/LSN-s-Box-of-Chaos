@@ -83,7 +83,7 @@ function SWEP:CallBack(attacker, trace, dmginfo)
 	fx:SetEntity(self)
 	fx:SetOrigin(self.Owner:GetShootPos())
 	fx:SetNormal(self.Owner:GetAimVector())
-	fx:SetAttachment(3)
+	fx:SetAttachment(1)
 	util.Effect("evil_muzzle",fx)
     dmginfo:SetDamageType(DMG_ENERGYBEAM)
 end

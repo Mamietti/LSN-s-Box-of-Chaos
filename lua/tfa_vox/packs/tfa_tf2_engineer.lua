@@ -203,6 +203,10 @@ TFAVOX_Models["models/player/engieplayer/engie.mdl"] = {
 		['incoming'] = {
 			['name'] = "Incoming",
 			['sound'] = 'PlayerIncoming.Engineer'
+		},
+		['jeers'] = {
+			['name'] = "Jeers",
+			['sound'] = 'PlayerJeers.Engineer'
 		}
 	}
 }
@@ -338,6 +342,14 @@ sound.Add( {
 	level = SNDLVL_TALKING,
 	pitch = PITCH_NORM,
 	sound = { "vo/engineer_incoming01.mp3", "vo/engineer_incoming02.mp3", "vo/engineer_incoming03.mp3", "vo/engineer_mvm_wave_start01.mp3" }
+} )
+sound.Add( {
+	name = "PlayerJeers.Engineer",
+	channel = CHAN_VOICE,
+	volume = 1.0,
+	level = SNDLVL_TALKING,
+	pitch = PITCH_NORM,
+	sound = {"vo/engineer_jeers01.mp3", "vo/engineer_jeers02.mp3", "vo/engineer_jeers03.mp3", "vo/engineer_jeers04.mp3", "vo/engineer_jeers05.mp3", "vo/engineer_jeers06.mp3", "vo/engineer_jeers07.mp3"}
 } )
 sound.Add( {
 	name = "PlayerCongratulate.Engineer",
