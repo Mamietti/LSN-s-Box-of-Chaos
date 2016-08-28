@@ -1,6 +1,0 @@
-VertexLitGeneric
-{
-	"$basetexture"	"models\v_models\weapons\76\1"
-        "$nocull" "1"
-        "$selfillum" "1"
-}
