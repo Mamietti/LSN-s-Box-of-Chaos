@@ -3,30 +3,23 @@ SWEP.Author			= "Strafe"
 SWEP.Instructions	= ""
 SWEP.Category	= "Half-Life 2 Plus"
 SWEP.Purpose = "SAWry for suppressing you."
-SWEP.Spawnable			= true
-SWEP.AdminOnly			= false
-SWEP.UseHands			= true
 SWEP.Slot				= 3
 SWEP.SlotPos			= 2
-SWEP.DrawAmmo			= true
 SWEP.ViewModel			= "models/weapons/cstrike/c_mach_m249para.mdl"
-SWEP.ViewModelFlip = false
 SWEP.WorldModel			= "models/weapons/w_mach_m249para.mdl"
-SWEP.CSMuzzleFlashes	= true
 SWEP.HoldType			= "ar2"
 SWEP.FiresUnderwater = false
-SWEP.Dual = false
-SWEP.ReloadSound = ""
 SWEP.Base = "weapon_hl2_base_strafe"
 SWEP.ViewModelFOV = 60
+SWEP.Spawnable			= true
+SWEP.AdminOnly			= false
 
 SWEP.Primary.ClipSize		= 100
 SWEP.Primary.DefaultClip	= 100
 SWEP.Primary.Automatic		= true
 SWEP.Primary.Ammo			= "HelicopterGun"
-SWEP.Primary.DamageBase = "sk_plr_dmg_ar2"
-SWEP.Primary.DamageMult = 1.75
-SWEP.Primary.FireSound = "Weapon_HMG1.Single"--"Weapon_M249.Single"
+SWEP.Primary.Damage = 14
+SWEP.Primary.FireSound = "Weapon_HMG1.Single"
 SWEP.Primary.Number = 1
 SWEP.Primary.Spread = 0.07
 SWEP.Primary.Tracer = "Tracer"
@@ -45,6 +38,7 @@ SWEP.Secondary.Automatic	= false
 SWEP.Secondary.Ammo			= "none"
 SWEP.AutoSwitchTo		= false
 SWEP.AutoSwitchFrom		= false
+
 if CLIENT then
 	killicon.AddFont("weapon_m249", "CSKillIcons", "z", Color(255, 100, 0, 255))
 end

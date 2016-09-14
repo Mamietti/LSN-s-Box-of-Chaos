@@ -2,26 +2,24 @@ SWEP.PrintName			= "Test SMG"
 SWEP.Author			= "Strafe"
 SWEP.Category	= "Half-Life 2 Plus"
 SWEP.Spawnable			= true
-SWEP.AdminOnly			= true
+SWEP.AdminOnly			= false
 SWEP.UseHands			= true
 SWEP.Slot				= 2
 SWEP.SlotPos			= 2
 SWEP.DrawAmmo			= true
 SWEP.ViewModel			= "models/weapons/c_smg1.mdl"
-SWEP.ViewModelFlip = true
+SWEP.ViewModelFlip = false
 SWEP.WorldModel			= "models/weapons/w_smg1.mdl"
 SWEP.CSMuzzleFlashes	= false
 SWEP.HoldType			= "smg"
 SWEP.FiresUnderwater = false
-SWEP.Dual = false
-SWEP.ReloadSound = "Weapon_SMG1.Reload"
+SWEP.ReloadSound = ""
 
 SWEP.Primary.ClipSize		= 45
 SWEP.Primary.DefaultClip	= 90
 SWEP.Primary.Automatic		= true
 SWEP.Primary.Ammo			= "SMG1"
-SWEP.Primary.DamageBase = "sk_plr_dmg_smg1"
-SWEP.Primary.DamageMult = 1
+SWEP.Primary.Damage = 5
 SWEP.Primary.FireSound = "Weapon_SMG1.Single"
 SWEP.Primary.EmptySound = "Weapon_IRifle.Empty"
 SWEP.Primary.Number = 1
@@ -59,13 +57,15 @@ AccessorFunc( SWEP, "fNPCMaxRestTime",         "NPCMaxRest" )
 	Reload does nothing
 ---------------------------------------------------------*/
 function SWEP:Reload()
-    if self:Clip1()<0 then return end
-    timer.Stop( "weapon_idle" .. self:EntIndex() )
-    self.FireStart	= nil
-	if self:DefaultReload(ACT_VM_RELOAD) then
-		self:EmitSound(self.ReloadSound)
-        self.NextIdle = CurTime() + self:SequenceDuration()
-	end
+    if self.Owner:IsNPC() then
+        self.Owner:SetSchedule(SCHED_RELOAD)
+    else
+        if self:DefaultReload(ACT_VM_RELOAD) then
+            self.FireStart	= nil
+            self:EmitSound(self.ReloadSound)
+            self.NextIdle = CurTime() + self:SequenceDuration()
+        end
+    end
 end
 
 function SWEP:Initialize()
@@ -91,10 +91,21 @@ function SWEP:Initialize()
 end
 
 function SWEP:PrimaryAttack()
-	--if ( !self:CanPrimaryAttack() ) then return end
-	if (self:Clip1()==-1 and (self.Owner:IsNPC() or self:Ammo1()>=self.Primary.AmmoTake)) or self:Clip1()>=self.Primary.AmmoTake then
-		if (!self.FiresUnderwater and self.Owner:WaterLevel()!=3) or self.FiresUnderwater then
-            self:HandleFunc()
+	if self:CanPrimaryAttack() then
+		if self.FiresUnderwater or self.Owner:WaterLevel()!=3 then
+            self:EmitSound( self.Primary.FireSound )
+            if !self.Owner:IsNPC() then
+                self:ShootEffects(self)
+                if self.FireStart == nil then
+                    self.FireStart	= CurTime()
+                elseif self.Primary.Automatic and self.Owner:GetViewModel():SelectWeightedSequence( ACT_VM_RECOIL1 ) then
+                    self:SendWeaponAnim( ACT_VM_RECOIL1 )
+                end
+                self:AddViewKick()
+                self.NextIdle = CurTime() + self:SequenceDuration()
+            end
+            self:FireRound()
+            self:SetNextPrimaryFire( CurTime() + self.Primary.FireRate)
             self:WithFire()
         else
             self.Weapon:EmitSound( self.Primary.EmptySound )
@@ -103,41 +114,31 @@ function SWEP:PrimaryAttack()
         if self.Owner:IsNPC() and self.Primary.Automatic then
             if !timer.Exists(tostring(self.Owner:EntIndex())) then
                 timer.Create( tostring(self.Owner:EntIndex()), self.Primary.FireRate, 3, function() 
-                    if IsValid(self) and IsValid(self.Owner) and self:Clip1()>0 and self.Owner:GetEnemy() then
+                    if IsValid(self) and IsValid(self.Owner) and self.Owner:GetEnemy() then
                         self:PrimaryAttack()
                     end
                 end )
             end
         end
-    else
-        if self:Clip1()!=(-1) then
-            if self.Owner:IsNPC() then
-                self.Owner:SetSchedule(SCHED_RELOAD)
-            elseif self:Ammo1()>0 then
-                self:Reload()
-            end
-        else
-            self.Weapon:EmitSound( self.Primary.EmptySound )
-            self.Weapon:SetNextPrimaryFire( CurTime() + 0.2 )
-        end
 	end
 end
 
-function SWEP:HandleFunc()
-    self:EmitSound( self.Primary.FireSound )
-    if !self.Owner:IsNPC() then
-        --self.Owner:ViewPunch(Angle(math.Rand(-self.Primary.Recoil,self.Primary.Recoil)*,math.Rand(-self.Primary.Recoil,self.Primary.Recoil),0))
-        self:ShootEffects(self)
-        if self.FireStart == nil then
-            self.FireStart	= CurTime()
-        elseif self.Owner:GetViewModel():SelectWeightedSequence( ACT_VM_RECOIL1 ) then
-            self:SendWeaponAnim( ACT_VM_RECOIL1 )
-        end
-        self:AddViewKick()
-        self.NextIdle = CurTime() + self:SequenceDuration()
-    end
-    self:FireRound()
-    self:SetNextPrimaryFire( CurTime() + self.Primary.FireRate)
+function SWEP:CanPrimaryAttack()
+
+	if ( self.Weapon:Clip1() <= 0 ) then
+
+		self:EmitSound( "Weapon_Pistol.Empty" )
+		self:SetNextPrimaryFire( CurTime() + 0.2 )
+		self:Reload()
+		return false
+
+	end
+
+	return true
+
+end
+
+function SWEP:WithFire()
 end
 
 function SWEP:FireRound()
@@ -148,7 +149,7 @@ function SWEP:FireRound()
     bullet.Spread = Vector(self.Primary.Spread,self.Primary.Spread,0)
     bullet.Tracer	= self.Primary.TracerAmount
     bullet.TracerName = self.Primary.Tracer
-    bullet.Damage	= GetConVarNumber( self.Primary.DamageBase ) * self.Primary.DamageMult
+    bullet.Damage	= self.Primary.Damage
     bullet.Force = self.Primary.Force
     bullet.Callback = function(attacker, trace, dmginfo)
         self:CallBack(attacker, trace, dmginfo)
@@ -182,10 +183,6 @@ function SWEP:AddViewKick()
 	--Add it to the view punch
 	-- NOTE: 0.5 is just tuned to match the old effect before the punch became simulated
 	self.Owner:ViewPunch( vecScratch * 0.5 )
-end
-
-function SWEP:WithFire()
-
 end
 
 function SWEP:SecondaryAttack()
@@ -235,7 +232,11 @@ function SWEP:SetupWeaponHoldTypeForAI( t )
 
 	self.ActivityTranslateAI = {}
 	self.ActivityTranslateAI [ ACT_STAND ] 						= ACT_STAND
+	self.ActivityTranslateAI [ ACT_IDLE ] 						= ACT_IDLE_SMG1
 	self.ActivityTranslateAI [ ACT_IDLE_ANGRY ] 				= ACT_IDLE_ANGRY_SMG1
+	self.ActivityTranslateAI [ ACT_IDLE_RELAXED ] 				= ACT_IDLE_SMG1_RELAXED
+	self.ActivityTranslateAI [ ACT_IDLE_STIMULATED ] 			= ACT_IDLE_SMG1_STIMULATED
+	self.ActivityTranslateAI [ ACT_IDLE_AGITATED ] 				= ACT_IDLE_ANGRY_SMG1
 
 	self.ActivityTranslateAI [ ACT_MP_RUN ] 					= ACT_HL2MP_RUN_SMG1
 	self.ActivityTranslateAI [ ACT_MP_CROUCHWALK ] 				= ACT_HL2MP_WALK_CROUCH_SMG1

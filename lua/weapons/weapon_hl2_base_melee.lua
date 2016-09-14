@@ -3,27 +3,27 @@ SWEP.Author			= "Strafe"
 SWEP.Category	= "Half-Life 2 Plus"
 SWEP.Spawnable			= true
 SWEP.AdminOnly			= true
-SWEP.UseHands			= true
+SWEP.UseHands			= false
 SWEP.Slot				= 2
 SWEP.SlotPos			= 2
 SWEP.DrawAmmo			= true
-SWEP.ViewModel			= "models/weapons/c_models/c_engineer_gunslinger.mdl"
-SWEP.WorldModel			= "models/weapons/w_crowbar.mdl"
+SWEP.ViewModel			= "models/weapons/v_gra_grove_b.mdl"
+SWEP.WorldModel			= "models/weapons/W_gra_glove.mdl"
 SWEP.CSMuzzleFlashes	= false
-SWEP.HoldType			= "melee"
+SWEP.HoldType			= "fist"
 SWEP.FiresUnderwater = false
 
 SWEP.Primary.ClipSize		= -1
 SWEP.Primary.DefaultClip	= -1
 SWEP.Primary.Automatic		= true
 SWEP.Primary.Ammo			= "none"
-SWEP.Primary.DamageBase = "sk_plr_dmg_crowbar"
-SWEP.Primary.DamageMult = 1
-SWEP.Primary.FireSound = "Weapon_Crowbar.Single"
-SWEP.Primary.HitSound = "Weapon_Crowbar.Melee_Hit"
-SWEP.Primary.FireRate = 0.14
+SWEP.Primary.Damage = 15
+SWEP.Primary.FireSound = "Weapon_StunStick.Swing"
+SWEP.Primary.HitSound = "NPC_RollerMine.Shock"
+SWEP.Primary.HitWorldSound = "Weapon_StunStick.Melee_HitWorld"
+SWEP.Primary.FireRate = 1
 SWEP.Primary.Distance = 64
-SWEP.Primary.DamageType = DMG_CLUB
+SWEP.Primary.DamageType = bit.bor(DMG_PHYSGUN)
 
 SWEP.NPCMinBurst = 3
 SWEP.NPCMaxBurst = 3
@@ -72,54 +72,38 @@ function SWEP:PrimaryAttack()
     self:EmitSound(self.Primary.FireSound)
     self.Owner:SetAnimation( PLAYER_ATTACK1 )
     self:SetNextPrimaryFire(CurTime()+self.Primary.FireRate)
-    local tr2 = util.TraceLine( {
-        start = self.Owner:GetShootPos(),
-        endpos = self.Owner:GetShootPos() + ( self.Owner:GetAimVector() * self.Primary.Distance ),
-        filter = self.Owner
-    } )
-    if tr2.Hit then
+    ---local ent = self.Owner:TraceHullAttack( self.Owner:GetShootPos(), self.Owner:GetShootPos() + ( self.Owner:GetAimVector() * self.Primary.Distance ), Vector( -16, -16, -16 ), Vector( 36, 36, 36 ), self.Primary.Damage, self.Primary.DamageType, 1, false );
+    --if IsValid(ent) then
+        --self:EmitSound(self.Primary.HitSound)
+        --ent:SetVelocity(Vector(0,0,200))
+    --end
+    local tracedata = {}
+    tracedata.start   = self.Owner:GetShootPos()
+    tracedata.endpos  = self.Owner:GetShootPos() + ( self.Owner:GetAimVector() * self.Primary.Distance )
+    tracedata.filter  = self.Owner
+    tracedata.mask    = MASK_SOLID
+    tracedata.mins    = Vector( -16, -16, -18 ) -- head_hull_mins
+    tracedata.maxs    = Vector( 16, 16, 18 ) -- head_hull_maxs
+    local tr = util.TraceHull(tracedata)
+    if tr.Hit and IsValid(tr.Entity) then
         self:EmitSound(self.Primary.HitSound)
-        if tr2.HitNonWorld then
-            if ( SERVER ) then
-                self.Owner:TraceHullAttack( self.Owner:GetShootPos(), tr2.HitPos, Vector( -16, -16, -16 ), Vector( 36, 36, 36 ), GetConVarNumber( self.Primary.DamageBase ) * self.Primary.DamageMult, self.Primary.DamageType, 1, false );
-            end
-        end
-        self:SendWeaponAnim(ACT_VM_HITCENTER)
-        local efe = EffectData()
-        local toot			= {};
-        toot.Src			= self.Owner:GetShootPos();
-        toot.Dir			= self.Owner:GetAimVector();
-        toot.Num			= 1;
-        toot.Damage			= 20;
-        toot.Force			= 20;
-        toot.Tracer			= 0;
-        toot.Distance       = self.Primary.Distance
-        toot.Callback		= function( attacker, tr, dmgtoot )
-            return {
-                damage		= false,
-                effects		= true
-            }
-        end;
-        self.Owner:FireBullets( toot )
-    else
-        self:SendWeaponAnim(ACT_VM_MISSLEFT)
+        local damage = DamageInfo()
+        damage:SetDamage(self.Primary.Damage)
+        damage:SetAttacker(self.Owner)
+        damage:SetInflictor(self)
+        damage:SetDamageType(self.Primary.DamageType)
+        damage:SetDamagePosition(self.Owner:GetShootPos() + ( self.Owner:GetAimVector() * self.Primary.Distance ))
+        damage:SetDamageForce(Vector(0,0,200) + Angle(0,self.Owner:EyeAngles().y,0):Forward()*1000)
+        tr.Entity:TakeDamageInfo(damage)
+        tr.Entity:SetVelocity(Vector(0,0,200) + Angle(0,self.Owner:EyeAngles().y,0):Forward()*1000)
+        tr.Entity:SetSchedule(SCHED_FLINCH_PHYSICS)
+    elseif tr.HitWorld then
+        tr = util.TraceLine(tracedata)
+        self:EmitSound(self.Primary.HitWorldSound)
+        util.Decal("ManhackCut", tr.HitPos + tr.HitNormal, tr.HitPos - tr.HitNormal)
     end
-end
-
-function SWEP:Suck()
-    local bullet = {}
-    bullet.Num 		= self.Primary.Number
-    bullet.Src 		= self.Owner:GetShootPos()
-    bullet.Dir 		= self.Owner:GetAimVector()
-    bullet.Spread = Vector(self.Primary.Spread,self.Primary.Spread,0)
-    bullet.Tracer	= 0
-    bullet.Damage	= GetConVarNumber( self.Primary.DamageBase ) * self.Primary.DamageMult
-    bullet.Force = self.Primary.Force
-    bullet.Distance = self.Primary.Distance
-    bullet.CallBack = function(attacker, trace, dmg)
-        dmg:SetDamageType(self.Primary.DamageType)
-    end
-    self.Owner:FireBullets(bullet)
+    self:SendWeaponAnim(ACT_VM_PRIMARYATTACK)
+    self.NextIdle = CurTime() + self:SequenceDuration()
 end
 
 function SWEP:SecondaryAttack()

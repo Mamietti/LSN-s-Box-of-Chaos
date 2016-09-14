@@ -9,14 +9,14 @@ SWEP.UseHands			= true
 SWEP.Slot				= 2
 SWEP.SlotPos			= 2
 SWEP.DrawAmmo			= true
-SWEP.ViewModel			= "models/weapons/cstrike/c_rif_galil.mdl"
+SWEP.ViewModel			= "models/weapons/v_e_ingection_b.mdl"--"models/weapons/cstrike/c_rif_galil.mdl"
 SWEP.ViewModelFlip = false
 SWEP.WorldModel			= "models/weapons/w_rif_galil.mdl"
 SWEP.CSMuzzleFlashes	= false
 SWEP.HoldType			= "ar2"
 SWEP.FiresUnderwater = false
 SWEP.Dual = false
-SWEP.ReloadSound = "Weapon_TEMP.Reload"
+SWEP.ReloadSound = ""--"Weapon_TEMP.Reload"
 SWEP.Base = "weapon_hl2_base_strafe"
 SWEP.ViewModelFOV = 60
 

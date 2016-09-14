@@ -50,6 +50,7 @@ function SWEP:GetViewModelPosition( pos, ang )
 	pos = self.Owner:GetShootPos() + ang:Forward()*0 + ang:Right()*9.445 + ang:Up()*-40-- + ang:Forward()*21.295 + ang:Right()*9.445 + ang:Up()*-15.742
 	return pos, ang
 end
+if SERVER then
 function SWEP:DrawWorldModel()
 	if not self.Owner:IsValid() then
 		self:DrawModel()
@@ -68,6 +69,7 @@ function SWEP:DrawWorldModel()
 
 		self:DrawModel()
 	end
+end
 end
 function SWEP:Initialize()
 	if ( SERVER ) then

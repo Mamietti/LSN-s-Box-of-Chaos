@@ -56,3 +56,11 @@ sound.Add( {
     pitch = 100,
     sound = {"weapons/hmg1/hmg1_7.wav","weapons/hmg1/hmg1_7.wav","weapons/hmg1/hmg1_7.wav"}
 } )
+sound.Add( {
+    name = "Weapon_SPistol.Single",
+    channel = CHAN_WEAPON,
+    volume = 1.0,
+    level = SNDLVL_IDLE,
+    pitch = {95,105},
+    sound = {"weapons/spistol/gun_silencer.wav"}
+} )
