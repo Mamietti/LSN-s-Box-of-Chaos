@@ -1,0 +1,31 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/weapons/m40/m40_n_diffuse2v"
+//	"$bumpmap" "models/weapons/m40/m40_n_nrm2"
+//	"$bumpmap" "models/weapons/m40/m40nrm"
+//	"$bumpmap" "normalclean"
+	"$envmap" "env_cubemap"
+	"$envmaptint" "[0.501 0.501 0.501]"
+	"$envmapsaturation" "0.5"
+	"$envmapcontrast" "1"
+//	"$phongexponenttexture"	"models/weapons/m40/m40_n_spec"	
+//	"$normalmapalphaenvmapmask" "1"
+//	"$envmapmask"	"models/weapons/m40/m40_n_spec2b"
+
+
+	"$phong" "1"
+	"$phongboost" "1.5"
+	"$phongexponenttexture"	"models/weapons/m40/m40_n_spec"
+	"$phongexponent" "150"
+	"$phongfresnelranges"	"[5 .25 5]"
+	"$phongalbedotint" "1"
+
+	"$ambientocclusion" "1"
+
+//	$detail detail\dt_smooth1
+	$detail detail\metal_detail_01
+	$detailscale 6
+	$detailblendfactor .360
+	$detailblendmode 0
+}
+

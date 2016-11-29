@@ -2,7 +2,7 @@ SWEP.PrintName			= "Double Pistols"
 SWEP.Author			= "Strafe"
 SWEP.Instructions	= ""
 SWEP.Category	= "Half-Life 2 Plus"
-SWEP.Purpose = "Shoot."
+SWEP.Purpose = ""
 SWEP.Spawnable			= true
 SWEP.AdminOnly			= false
 SWEP.UseHands			= true
@@ -14,7 +14,7 @@ SWEP.ViewModelFlip = false
 SWEP.WorldModel			= "models/weapons/w_pistol_dual.mdl"
 SWEP.CSMuzzleFlashes	= true
 SWEP.HoldType			= "duel"
-SWEP.FiresUnderwater = false
+SWEP.FiresUnderwater = true
 SWEP.ReloadSound = ""
 SWEP.Base = "weapon_hl2_base_strafe"
 SWEP.ViewModelFOV = 60
@@ -45,12 +45,12 @@ end
 function SWEP:DrawWeaponSelection( x, y, wide, tall, alpha )
 	surface.SetDrawColor( color_transparent )
 	surface.SetTextColor( 255, 220, 0, alpha )
-	surface.SetFont( "CSKillIcons" )
-	local w, h = surface.GetTextSize("z")
+	surface.SetFont( "HL2HUDFONT" )
+	local w, h = surface.GetTextSize("dd")
 
 	surface.SetTextPos( x + ( wide / 2 ) - ( w / 2 ),
 						y + ( tall / 2 ) - ( h / 2 ) )
-	surface.DrawText( "z" )
+	surface.DrawText( "dd" )
 end
 
 function SWEP:AddViewKick()

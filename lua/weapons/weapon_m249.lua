@@ -13,6 +13,8 @@ SWEP.Base = "weapon_hl2_base_strafe"
 SWEP.ViewModelFOV = 60
 SWEP.Spawnable			= true
 SWEP.AdminOnly			= false
+SWEP.CSMuzzleFlashes	= true
+SWEP.CSMuzzleX = true
 
 SWEP.Primary.ClipSize		= 100
 SWEP.Primary.DefaultClip	= 100
@@ -54,7 +56,9 @@ function SWEP:DrawWeaponSelection( x, y, wide, tall, alpha )
 end
 
 function SWEP:WithFire()
-    self.Owner:SetVelocity(self.Owner:GetAimVector()*-20)
+    if !self.Owner:IsNPC() then
+        self.Owner:SetVelocity(self.Owner:GetAimVector()*-20)
+    end
 end
 
 list.Add( "NPCUsableWeapons", { class = "weapon_m249",	title = "HECU M249" }  )

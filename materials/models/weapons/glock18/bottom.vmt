@@ -1,0 +1,42 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/weapons/glock18/bottom"
+	"$bumpmap" "models/weapons/glock18/bottom_n"
+
+	"$normalmapalphaenvmapmask" 1
+	"$nocull" 1
+
+	"$model" "1"
+
+
+	"$phong" "1"
+	"$phongexponent" 10
+	"$phongfresnelranges" "[1.0 .7 1.2]"
+	"$phongboost" ".35"
+	"$phongalbedotint" "1"
+	"$phongalbedoboost" "45"
+	"$phongexponenttexture" "models/weapons/glock18/bottom_spec"
+//	"$basemapluminancephongmask" "1"
+	"$basemapalphaphongmask" "1"
+
+//	"$envmap" "env_cubemap"
+	"$envmaptint" "[0.022 0.02 0.02]"
+	"$envmapfresnel" "1"
+//	"$envmapmask" "models/weapons/glock18/bottom_spec"
+	"$envmapsaturation" "[0.35 0.35 0.35]"
+
+//	"$rimlight" "1"
+	"$rimlightboost" "0.21"
+	"$rimlightexponent" "500"
+	"$rimlightmask" "1"
+	"$normalmapalpharimlightmask" "1"
+
+	"$halflambert" "1"
+
+//	$detail detail\detail_noise1
+	$detailscale 10
+	$detailblendfactor 5.2
+	$detailblendmode 0
+
+}
+	

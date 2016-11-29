@@ -1,0 +1,6 @@
+"VertexLitGeneric"
+{
+	"$envmap" "models\w_gauss/gaussCHROME"
+	"$envmapcontrast" 1
+	"$envmapsphere"			1
+}

@@ -1,7 +1,7 @@
 SWEP.PrintName			= "Test SMG"
 SWEP.Author			= "Strafe"
 SWEP.Category	= "Half-Life 2 Plus"
-SWEP.Spawnable			= true
+SWEP.Spawnable			= false
 SWEP.AdminOnly			= false
 SWEP.UseHands			= true
 SWEP.Slot				= 2
@@ -15,23 +15,26 @@ SWEP.HoldType			= "smg"
 SWEP.FiresUnderwater = false
 SWEP.ReloadSound = ""
 
-SWEP.Primary.ClipSize		= 45
+SWEP.Primary.ClipSize		= 30
 SWEP.Primary.DefaultClip	= 90
 SWEP.Primary.Automatic		= true
 SWEP.Primary.Ammo			= "SMG1"
 SWEP.Primary.Damage = 5
 SWEP.Primary.FireSound = "Weapon_SMG1.Single"
+SWEP.Primary.NPCFireSound = nil
 SWEP.Primary.EmptySound = "Weapon_IRifle.Empty"
 SWEP.Primary.Number = 1
-SWEP.Primary.Spread = 0.1
+SWEP.Primary.Spread = 0.05
 SWEP.Primary.Tracer = "Tracer"
 SWEP.Primary.TracerAmount = 3
 SWEP.Primary.FireRate = 0.07
 SWEP.Primary.AmmoTake = 1
 
+SWEP.Primary.CoolDownTime = nil
+
 SWEP.EASY_DAMPEN = 0.5
-SWEP.MAX_VERTICAL_KICK = 8.0
-SWEP.SLIDE_LIMIT = 5.0
+SWEP.MAX_VERTICAL_KICK = 8
+SWEP.SLIDE_LIMIT = 4
 SWEP.KICK_MIN_X = 0.2
 SWEP.KICK_MIN_Y = 0.2
 SWEP.KICK_MIN_Z = 0.1
@@ -56,12 +59,14 @@ AccessorFunc( SWEP, "fNPCMaxRestTime",         "NPCMaxRest" )
 /*---------------------------------------------------------
 	Reload does nothing
 ---------------------------------------------------------*/
+
 function SWEP:Reload()
     if self.Owner:IsNPC() then
         self.Owner:SetSchedule(SCHED_RELOAD)
     else
         if self:DefaultReload(ACT_VM_RELOAD) then
             self.FireStart	= nil
+            self.CoolOff = nil
             self:EmitSound(self.ReloadSound)
             self.NextIdle = CurTime() + self:SequenceDuration()
         end
@@ -88,23 +93,28 @@ function SWEP:Initialize()
     end
     self:SetHoldType(self.HoldType)
     self.FireStart = nil
+    self.CoolDown = CurTime()
 end
 
 function SWEP:PrimaryAttack()
 	if self:CanPrimaryAttack() then
 		if self.FiresUnderwater or self.Owner:WaterLevel()!=3 then
-            self:EmitSound( self.Primary.FireSound )
+            local acc = self.Primary.Spread
             if !self.Owner:IsNPC() then
+                self:EmitSound( self.Primary.FireSound )
                 self:ShootEffects(self)
-                if self.FireStart == nil then
+                if CurTime()>=self.CoolDown then
                     self.FireStart	= CurTime()
-                elseif self.Primary.Automatic and self.Owner:GetViewModel():SelectWeightedSequence( ACT_VM_RECOIL1 ) then
-                    self:SendWeaponAnim( ACT_VM_RECOIL1 )
+                else
+                    acc = self:HandleRecoil()
                 end
                 self:AddViewKick()
+                self.CoolDown = CurTime() + (self.Primary.CoolDownTime or self.Primary.FireRate+0.01)
                 self.NextIdle = CurTime() + self:SequenceDuration()
+            else
+                self:EmitSound( self.Primary.NPCFireSound or self.Primary.FireSound )
             end
-            self:FireRound()
+            self:FireRound(acc)
             self:SetNextPrimaryFire( CurTime() + self.Primary.FireRate)
             self:WithFire()
         else
@@ -123,8 +133,14 @@ function SWEP:PrimaryAttack()
 	end
 end
 
-function SWEP:CanPrimaryAttack()
+function SWEP:HandleRecoil()
+    if self.Primary.Automatic and self.Owner:GetViewModel():SelectWeightedSequence( ACT_VM_RECOIL1 ) then
+        self:SendWeaponAnim( ACT_VM_RECOIL1 )
+    end
+    return self.Primary.Spread
+end
 
+function SWEP:CanPrimaryAttack()
 	if ( self.Weapon:Clip1() <= 0 ) then
 
 		self:EmitSound( "Weapon_Pistol.Empty" )
@@ -133,6 +149,9 @@ function SWEP:CanPrimaryAttack()
 		return false
 
 	end
+    if self.Owner:IsNPC() and CurTime()<self:GetNextPrimaryFire() then
+        return false
+    end
 
 	return true
 
@@ -141,12 +160,12 @@ end
 function SWEP:WithFire()
 end
 
-function SWEP:FireRound()
+function SWEP:FireRound(acc)
     local bullet = {}
     bullet.Num 		= self.Primary.Number
     bullet.Src 		= self.Owner:GetShootPos()
     bullet.Dir 		= self.Owner:GetAimVector()
-    bullet.Spread = Vector(self.Primary.Spread,self.Primary.Spread,0)
+    bullet.Spread = Vector(acc,acc,0)
     bullet.Tracer	= self.Primary.TracerAmount
     bullet.TracerName = self.Primary.Tracer
     bullet.Damage	= self.Primary.Damage
@@ -155,33 +174,21 @@ function SWEP:FireRound()
         self:CallBack(attacker, trace, dmginfo)
     end
     self.Owner:FireBullets(bullet)
-    self:TakePrimaryAmmo(1)
+    self:TakePrimaryAmmo(self.Primary.AmmoTake)
 end
 
 function SWEP:CallBack(attacker, trace, dmginfo)
 end
 
 function SWEP:AddViewKick()
-	--Find how far into our accuracy degradation we are
 	local duration	= math.min(CurTime()-self.FireStart, self.SLIDE_LIMIT)
 	local kickPerc = duration / self.SLIDE_LIMIT
-
-	-- do this to get a hard discontinuity, clear out anything under 10 degrees punch
 	self.Owner:ViewPunchReset( 15 )
     local vecScratch = Angle(0,0,0)
-	--Apply this to the view angles as well
 	vecScratch.x = -( self.KICK_MIN_X + ( self.MAX_VERTICAL_KICK * kickPerc ) )
-	vecScratch.y = -( self.KICK_MIN_Y + ( self.MAX_VERTICAL_KICK * kickPerc ) ) / 3
-	vecScratch.z = self.KICK_MIN_Z + ( self.MAX_VERTICAL_KICK * kickPerc ) / 8
-
-	--Wibble left and right
-    vecScratch.y = vecScratch.y*math.random( -1, 1 )
-	--Wobble up and down
-    vecScratch.z = vecScratch.y*math.random( -1, 1 )
-	--Clip this to our desired min/max
+	vecScratch.y = -( self.KICK_MIN_Y + ( self.MAX_VERTICAL_KICK * kickPerc ) ) / 3*math.random( -1, 1 )
+	vecScratch.z = self.KICK_MIN_Z + ( self.MAX_VERTICAL_KICK * kickPerc ) / 8*math.random( -1, 1 )
 	--UTIL_ClipPunchAngleOffset( vecScratch, pPlayer->m_Local.m_vecPunchAngle, QAngle( 24.0f, 3.0f, 1.0f ) );
-	--Add it to the view punch
-	-- NOTE: 0.5 is just tuned to match the old effect before the punch became simulated
 	self.Owner:ViewPunch( vecScratch * 0.5 )
 end
 
@@ -190,9 +197,6 @@ function SWEP:SecondaryAttack()
 end
 
 function SWEP:Think()
-	if !self.Owner:KeyDown( IN_ATTACK ) then
-		self.FireStart	= nil
-	end
     if self.NextIdle!=nil and CurTime()>=self.NextIdle then
         self:SendWeaponAnim( ACT_VM_IDLE )
         self.NextIdle=nil
@@ -200,8 +204,8 @@ function SWEP:Think()
 end
 
 function SWEP:Deploy()
-	self:SendWeaponAnim(ACT_VM_DEPLOY)
     self:SetDeploySpeed( 1 )
+	self:SendWeaponAnim(ACT_VM_DEPLOY)
     self.Weapon:SetNextPrimaryFire( CurTime() + self:SequenceDuration()*0.7 )   
     self.Weapon:SetNextSecondaryFire( CurTime() + self:SequenceDuration()*0.7 )
     self.NextIdle = CurTime() + self:SequenceDuration()  

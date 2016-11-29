@@ -1,4 +1,3 @@
---return
 SWEP.PrintName			= "Tau Cannon"
 SWEP.Author			= "Strafe"
 SWEP.Instructions	= "One Energy Weapon to rule 'em all"
@@ -10,9 +9,9 @@ SWEP.UseHands			= false
 SWEP.Slot				= 2
 SWEP.SlotPos			= 2
 SWEP.DrawAmmo			= true
-SWEP.ViewModel			= "models/weapons/v_gauss.mdl"
+SWEP.ViewModel			= "models/v_gauss.mdl"
 SWEP.ViewModelFlip = false
-SWEP.WorldModel			= "models/weapons/w_gauss.mdl"
+SWEP.WorldModel			= "models/w_gauss.mdl"
 SWEP.CSMuzzleFlashes	= false
 SWEP.HoldType			= "shotgun"
 SWEP.FiresUnderwater = false
@@ -28,7 +27,7 @@ SWEP.Primary.FireSound = "PropJeep.FireCannon"
 SWEP.Primary.EmptySound = "Weapon_IRifle.Empty"
 SWEP.Primary.Number = 1
 SWEP.Primary.Spread = 0.01
-SWEP.Primary.Tracer = "GaussTracer"
+SWEP.Primary.Tracer = "None"--"GaussTracer"
 SWEP.Primary.TracerAmount = 1
 SWEP.Primary.FireRate = 0.2
 SWEP.Primary.Recoil = 0
@@ -40,11 +39,13 @@ SWEP.Secondary.Ammo			= "none"
 SWEP.AutoSwitchTo		= false
 SWEP.AutoSwitchFrom		= false
 
-SWEP.ViewModelFOV = 55
+SWEP.ViewModelFOV = 85
 
+SWEP.StartTime = nil
 SWEP.DamageMult = 0
-SWEP.FireStart = nil
 SWEP.Sound = nil
+
+
 /*---------------------------------------------------------
 	Reload does nothing
 ---------------------------------------------------------*/
@@ -63,6 +64,17 @@ function SWEP:DrawWeaponSelection( x, y, wide, tall, alpha )
 end
 function SWEP:FireBeam(dmgbonus)
     self:EmitSound( self.Primary.FireSound )
+    
+    local forward = self.Owner:EyeAngles():Forward()
+    local up = self.Owner:EyeAngles():Up()
+    local right = self.Owner:EyeAngles():Right()  
+    local shootpos = self.Owner:GetShootPos()+right*10+forward*20-up*8
+    
+    local trace = nil   
+    if self.Owner.GetEyeTrace!=nil then
+        trace = self.Owner:GetEyeTrace()
+    end
+    
     local bullet = {}
     bullet.Attacker = self.Owner
     bullet.Inflictor = self
@@ -70,75 +82,65 @@ function SWEP:FireBeam(dmgbonus)
     bullet.HullSize = 0
     bullet.Src 		= self.Owner:GetShootPos()
     bullet.Dir 		= self.Owner:GetAimVector()
-    bullet.TracerName = 0
+    bullet.TracerName = ""
     bullet.Tracer	= 0
+    bullet.AmmoType = "GaussEnergy"
     bullet.Damage	= 20 + dmgbonus*20
-    bullet.Force    = 5 + dmgbonus*10
-    bullet.Callback = function(attacker, trace, dmginfo)
-        if dmginfo then dmginfo:SetDamageType(DMG_ENERGYBEAM) end
-        local forward = self.Owner:EyeAngles():Forward()
-        local up = self.Owner:EyeAngles():Up()
-        local right = self.Owner:EyeAngles():Right()
-        local shootpos = self.Owner:GetShootPos()+right*10+forward*10-up*10
-        
-        local effectdata = EffectData()
-        effectdata:SetOrigin( trace.HitPos)
-        effectdata:SetScale(1)
-        effectdata:SetMagnitude(1)
-        effectdata:SetRadius(10)
-        util.Effect( "Sparks", effectdata )--sparks
-        
-        local effectdata2 = EffectData()
-        effectdata2:SetOrigin( trace.HitPos)
-        effectdata2:SetStart(shootpos)
-        effectdata2:SetScale(6000)
-        effectdata2:SetAngles( Vector(trace.HitPos-shootpos):Angle())
-        effectdata2:SetNormal(trace.HitNormal )
-        effectdata2:SetEntity( trace.Entity )
-        effectdata2:SetSurfaceProp( trace.SurfaceProps )
-        effectdata2:SetHitBox( trace.HitBox )
-        effectdata2:SetFlags(0)
-        util.Effect( "GaussTracer", effectdata2, false, true)
-        
-        if SERVER then
-        local hit = ents.Create("info_particle_system")
-        hit:SetPos(trace.HitPos)
-        hit:SetName("target"..tostring(self.Owner))
-        hit:SetAngles(self:GetAngles())
-
-        local zappy = ents.Create( "env_beam" )
-            zappy:SetPos(shootpos)
-            zappy:SetKeyValue( "life", "0" )
-            zappy:SetKeyValue( "BoltWidth", "0.5" )
-            zappy:SetKeyValue( "NoiseAmplitude", "1" )
-            zappy:SetKeyValue( "damage", "0" )
-            zappy:SetKeyValue( "Spawnflags", "17" )
-            zappy:SetKeyValue( "texture", "sprites/laserbeam.vtf" )
-            zappy:SetName("beam"..tostring(self.Owner))
-            zappy:SetKeyValue( "LightningStart", zappy:GetName() )
-            zappy:SetKeyValue("LightningEnd", hit:GetName() )
-            zappy:SetColor(Color(255,255,255,100))
-            zappy:Spawn()
-            zappy:Activate()
-            
-            hit:Fire("kill",0,0.1)
-            zappy:Fire("kill",0,0.1)
-        end
-        
-        util.Decal("RedGlowFade", trace.HitPos+trace.HitNormal, trace.HitPos-trace.HitNormal)
-        --util.Decal("ManhackCut", trace.HitPos+trace.HitNormal, trace.HitPos-trace.HitNormal)
+    bullet.Force    = 1 + dmgbonus*5
+    bullet.Callback = function(attacker,tr,dmginfo)
+        trace = tr
+        --shootpos = self.Owner:GetShootPos()
     end
+    
     self.Owner:FireBullets(bullet)
+    
+    local effectdata2 = EffectData()
+    effectdata2:SetOrigin( trace.HitPos)
+    effectdata2:SetStart(shootpos)
+    effectdata2:SetScale(6000)
+    effectdata2:SetAngles( Vector(trace.HitPos-shootpos):Angle())
+    effectdata2:SetNormal(trace.HitNormal )
+    effectdata2:SetEntity( trace.Entity )
+    effectdata2:SetSurfaceProp( trace.SurfaceProps )
+    effectdata2:SetHitBox( trace.HitBox )
+    effectdata2:SetFlags(0)
+    util.Effect( "GaussTracer", effectdata2, false, true)
+    
+    if SERVER then
+    local hit = ents.Create("info_particle_system")
+    hit:SetPos(trace.HitPos)
+    hit:SetName("target"..tostring(self.Owner))
+    hit:SetAngles(self:GetAngles())
+
+    local zappy = ents.Create( "env_beam" )
+        zappy:SetPos(shootpos)
+        zappy:SetKeyValue( "life", "0" )
+        zappy:SetKeyValue( "BoltWidth", "0.5" )
+        zappy:SetKeyValue( "NoiseAmplitude", "1" )
+        zappy:SetKeyValue( "damage", "0" )
+        zappy:SetKeyValue( "Spawnflags", "17" )
+        zappy:SetKeyValue( "texture", "sprites/laserbeam.vtf" )
+        zappy:SetName("beam"..tostring(self.Owner))
+        zappy:SetKeyValue( "LightningStart", zappy:GetName() )
+        zappy:SetKeyValue("LightningEnd", hit:GetName() )
+        zappy:SetColor(Color(255,255,255,100))
+        zappy:Spawn()
+        zappy:Activate()
+        
+        hit:Fire("kill",0,0.1)
+        zappy:Fire("kill",0,0.1)
+    end
+    
+    util.Decal("RedGlowFade", trace.HitPos+trace.HitNormal, trace.HitPos-trace.HitNormal)
 end
 
 function SWEP:PrimaryAttack()
-	--if ( !self:CanPrimaryAttack() ) then return end
 	if self.Owner:IsNPC() or self:Ammo1()>1 then
-		if (!self.FiresUnderwater and self.Owner:WaterLevel()!=3) or self.FiresUnderwater then
+		if self.Owner:WaterLevel()!=3 then
 			self:SetNextPrimaryFire( CurTime() + self.Primary.FireRate)
             self:FireBeam(0)
             if !self.Owner:IsNPC() then
-                --self.Owner:ViewPunch(Angle(math.Rand(-self.Primary.Recoil,self.Primary.Recoil)*,math.Rand(-self.Primary.Recoil,self.Primary.Recoil),0))
+                self.FireStart = CurTime()
                 self:AddViewKick()
                 self:ShootEffects(self)
                 self:TakePrimaryAmmo(2)
@@ -148,7 +150,7 @@ function SWEP:PrimaryAttack()
             self.Weapon:EmitSound( self.Primary.EmptySound )
             self.Weapon:SetNextPrimaryFire( CurTime() + 0.2 )
 		end
-        if self.Owner:IsNPC() and self.Primary.Automatic then
+        if self.Owner:IsNPC() then
             if !timer.Exists(tostring(self.Owner:EntIndex())) then
                 timer.Create( tostring(self.Owner:EntIndex()), self.Primary.FireRate, 3, function() 
                     if IsValid(self) and IsValid(self.Owner) and self:Clip1()>0 and self.Owner:GetEnemy() then
@@ -164,23 +166,21 @@ function SWEP:PrimaryAttack()
 end
 
 function SWEP:SecondaryAttack()
+    local view = self.Owner:GetViewModel()
     if self:Ammo1()>1 then
         if self.DamageMult==0 then
-            --self:EmitSound("weapons/gauss/chargeloop.wav",100,255)
             local sound = CreateSound(self,"weapons/gauss/chargeloop.wav")
             sound:Play()
             sound:ChangePitch( 255, 2 )
             self.Sound = sound
-            self.StartTime = CurTime()
+            self.ZapTime = CurTime() + 10
             self:TakePrimaryAmmo(2)
-            self:SendWeaponAnim( ACT_VM_PULLBACK_LOW )
+            view:SendViewModelMatchingSequence( view:LookupSequence("spin") )
+            self.NextIdle = nil
         end
         if self.DamageMult<5 then
             self.DamageMult = self.DamageMult + 1
             self:TakePrimaryAmmo(2)
-            if self.DamageMult==3 then
-                self:SendWeaponAnim( ACT_VM_PULLBACK )
-            end
         end
     end
     self:SetNextSecondaryFire(CurTime() + 0.5)
@@ -208,27 +208,35 @@ function SWEP:DrawWorldModel()
 end
 
 function SWEP:Think()
-	if self.Owner:KeyDown( IN_ATTACK ) then
-        if self.FireStart==nil then
-            self.FireStart	= CurTime()
-        end
-	elseif !self.Owner:KeyDown( IN_ATTACK ) then
-		self.FireStart	= nil
-	end
+    if self.NextIdle!=nil and CurTime()>=self.NextIdle then
+        self:SendWeaponAnim( ACT_VM_IDLE )
+        self.NextIdle=nil
+    end
     if self.Owner:IsNPC() then return end
+    if self.ZapTime!=nil and CurTime()>=self.ZapTime then
+        self:SendWeaponAnim( ACT_VM_SECONDARYATTACK )
+        self.Weapon:EmitSound("ReallyLoudSpark" )
+        self.Owner:TakeDamage(50)
+        self:ResetSecondary()
+    end
     if self.Owner:KeyReleased(IN_ATTACK2) and self.DamageMult>0 then
         self:FireBeam(self.DamageMult)
-        self:SendWeaponAnim( ACT_VM_SECONDARYATTACK )
-        self:SetNextSecondaryFire(CurTime() + 1.5)
-        self:SetNextPrimaryFire(CurTime() + 1.5)
         self.Owner:SetVelocity(-self.Owner:GetAimVector()*75*self.DamageMult)
-        self.DamageMult = 0
-        self.StartTime = nil
-        --self:StopSound("weapons/gauss/chargeloop.wav")
-        self.Sound:Stop()
+        self:ResetSecondary()
     end
 end
 
+function SWEP:ResetSecondary()
+    self:ShootEffects(self)
+    self:SendWeaponAnim( ACT_VM_SECONDARYATTACK )
+    self:SetNextSecondaryFire(CurTime() + 1.5)
+    self:SetNextPrimaryFire(CurTime() + 1.5)
+    self.DamageMult = 0
+    self.ZapTime = nil
+    self.NextIdle = CurTime() + self:SequenceDuration()
+    self.Sound:Stop()
+end
+--[[
 function SWEP:PostDrawViewModel(view)
     bone = view:LookupBone("spinner")
     boner = view:LookupBone("fan")
@@ -241,10 +249,9 @@ function SWEP:PostDrawViewModel(view)
         end
     end
 end
-
+]]--
 function SWEP:Holster(wep)
 	timer.Stop( "weapon_idle" .. self:EntIndex() )
-    --self:StopSound("weapons/gauss/chargeloop.wav")
     if self.Sound!=nil then
         self.Sound:Stop()
     end
@@ -253,7 +260,6 @@ end
 
 function SWEP:OnRemove()
 	timer.Stop( "weapon_idle" .. self:EntIndex() )
-    --self:StopSound("weapons/gauss/chargeloop.wav")
     if self.Sound!=nil then
         self.Sound:Stop()
     end
@@ -267,8 +273,6 @@ function SWEP:Initialize()
 	end
 	self:SetWeaponHoldType("shotgun")
 end
-
---list.Add( "NPCUsableWeapons", { class = "weapon_gauss",	title = "Gauss Gun" }  )
 
 function SWEP:SetupWeaponHoldTypeForAI( t )
 
@@ -289,3 +293,5 @@ function SWEP:SetupWeaponHoldTypeForAI( t )
 	self.ActivityTranslateAI [ ACT_RELOAD ] 					= ACT_RELOAD_SHOTGUN
 	return end	
 end
+
+list.Add( "NPCUsableWeapons", { class = "weapon_gauss",	title = "Tau Cannon" }  )

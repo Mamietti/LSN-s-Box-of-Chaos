@@ -4,10 +4,10 @@ AddCSLuaFile()
 DEFINE_BASECLASS( "base_anim" )
 
 
-ENT.PrintName		= "NIGGER"
+ENT.PrintName		= ""
 ENT.Author			= "ARNOLD YA-KNOW-WHO"
-ENT.Information		= "SUCK MY DICK"
-ENT.Category		= "FUCKS I GIVE"
+ENT.Information		= ""
+ENT.Category		= ""
 
 ENT.Editable			= false
 ENT.Spawnable			= false
