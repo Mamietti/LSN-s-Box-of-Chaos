@@ -31,20 +31,11 @@ if CLIENT then
 		additive = true,
 		outline = true,
 	} )
-    language.Add( "HelicopterGun_ammo", "Heavy Ammo" )
     language.Add( "GaussEnergy_ammo", "Depleted Uranium-235" )
-    language.Add( "9mmRound_ammo", "9mm Ammo" )
     language.Add( "SniperRound_ammo", "Sniper Ammo" )
-    language.Add( "MP5_Grenade_ammo", "20mm Grenades" )
     language.Add( "Manhack_ammo", "Manhacks" )
-    --language.Add( "Battery_ammo", "Microfusion Cells" )
 end
-local function AddPlayerModel( name, model )
 
-	list.Set( "PlayerOptionsModel", name, model )
-	player_manager.AddValidModel( name, model )
-	
-end
 game.AddAmmoType( {
 	name = "Manhack",
 	dmgtype = DMG_SLASH,
@@ -127,3 +118,11 @@ sound.Add( {
     pitch = 120,
     sound = "weapons/smg1/smg1_triple_fire1.wav"
 } )
+local NPC = {
+	Name = "Robo Grunt",
+	Class = "npc_robo_grunt",
+	Category = "Robot",
+	KeyValues = { SquadName = "robot" }
+}
+list.Set( "NPC", NPC.Class, NPC )
+Add_NPC_Class( "CLASS_ROBOT" )

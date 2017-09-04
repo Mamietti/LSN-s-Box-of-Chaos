@@ -1,5 +1,0 @@
-"VertexLitGeneric"
-{
-	"$baseTexture" "models\w_gaussammo/W_GAUSS_AMMO"
-                 "$bumpmap" "models\w_gaussammo/W_GAUSS_AMMO_normal"
-}

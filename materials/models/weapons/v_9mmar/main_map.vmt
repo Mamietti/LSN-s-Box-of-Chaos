@@ -1,7 +1,0 @@
-"VertexLitGeneric"
-{
-	"$baseTexture" "Models/Weapons/v_9mmar/main_map"
-	"$bumpmap" "models\weapons\v_9mmar\main_map_normal"
-	//"$envmap" "env_cubemap"
-	"$normalmapalphaenvmapmask" 1
-}
