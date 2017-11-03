@@ -1,3 +1,18 @@
+--SOMETHINGS
+local Category = ""
+local function ADD_ITEM( name, class )
+
+	list.Set( "SpawnableEntities", class, { PrintName = name, ClassName = class, Category = Category, NormalOffset = 32, DropToFloor = true, Author = "VALVe" } )
+	duplicator.Allow( class )
+
+end
+------
+
+Category = "Half-Life 2"
+ADD_ITEM( "Flare Ammo", "item_flare_round" )
+ADD_ITEM( "Flare Ammo (Large)", "item_box_flare_rounds" )
+ADD_ITEM( "Sniper Ammo", "item_box_sniper_rounds" )
+
 if CLIENT then
 	surface.CreateFont( "HL2HUDFONT", {
 		font = "HalfLife2",
@@ -40,6 +55,16 @@ end
 game.AddAmmoType( {
 	name = "Manhack",
 	dmgtype = DMG_SLASH,
+	tracer = TRACER_NONE,
+	plydmg = 0,
+	npcdmg = 0,
+	force = 2000,
+	minsplash = 10,
+	maxsplash = 5
+} )
+game.AddAmmoType( {
+	name = "FlareRound",
+	dmgtype = DMG_BURN,
 	tracer = TRACER_NONE,
 	plydmg = 0,
 	npcdmg = 0,
