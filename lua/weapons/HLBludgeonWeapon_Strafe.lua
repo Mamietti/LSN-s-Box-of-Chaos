@@ -1,4 +1,4 @@
-SWEP.PrintName			= "Test GAY"
+SWEP.PrintName			= "Test club"
 SWEP.Author			= "Strafe"
 SWEP.Category	= "Half-Life 2 Plus"
 SWEP.Spawnable			= false
