@@ -1,8 +1,8 @@
 SWEP.PrintName			= "Test GAY"
 SWEP.Author			= "Strafe"
 SWEP.Category	= "Half-Life 2 Plus"
-SWEP.Spawnable			= true
-SWEP.AdminOnly			= false
+SWEP.Spawnable			= false
+SWEP.AdminOnly			= true
 SWEP.UseHands			= true
 SWEP.Slot				= 2
 SWEP.SlotPos			= 2
@@ -57,7 +57,7 @@ function SWEP:GetCapabilities()
 end
 
 function SWEP:Think()
-	if self.Owner then
+	if self.Owner and CurTime()>self:GetNextPrimaryFire() and CurTime()>self:GetNextSecondaryFire() then
 		self:WeaponIdle()
 	end
 end

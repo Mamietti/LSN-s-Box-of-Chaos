@@ -18,16 +18,10 @@
 			"texturescrollrate" 4
 			"texturescrollangle" -50
 		}
-		PlayerWeaponColor
+		"PlayerWeaponColor"
 		{
 			resultVar	$color2
 		}
-
-
 	}
-
-
-
-
 }
 

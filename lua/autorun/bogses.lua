@@ -72,3 +72,23 @@ game.AddAmmoType( {
 	minsplash = 10,
 	maxsplash = 5
 } )
+
+
+---SOUNDS
+
+sound.Add( {
+	name = "Weapon_Pknife.Swing",
+	channel = CHAN_WEAPON,
+	volume = 0.7,
+	level = 80,
+	pitch = { 95, 110 },
+	sound = "weapons/pknife/pulseknife_kara.wav"
+} )
+sound.Add( {
+	name = "Weapon_Pknife.Melee_Hit",
+	channel = CHAN_WEAPON,
+	volume = 0.7,
+	level = 80,
+	pitch = { 95, 110 },
+	sound = "weapons/pknife/pulseknife_hit.wav"
+} )

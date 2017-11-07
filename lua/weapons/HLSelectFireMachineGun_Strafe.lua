@@ -1,8 +1,8 @@
 SWEP.PrintName			= "Test SMG BURST"
 SWEP.Author			= "Strafe"
 SWEP.Category	= "Half-Life 2 Plus"
-SWEP.Spawnable			= true
-SWEP.AdminOnly			= false
+SWEP.Spawnable			= false
+SWEP.AdminOnly			= true
 SWEP.UseHands			= true
 SWEP.Slot				= 2
 SWEP.SlotPos			= 2
