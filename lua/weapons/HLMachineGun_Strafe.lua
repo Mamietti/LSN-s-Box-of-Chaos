@@ -292,7 +292,7 @@ function SWEP:GetFireRate()
 end
 
 function SWEP:DoSecondaryAttack()
-	PrintTable(self:GetSaveTable())
+	--PrintTable(self:GetSaveTable())
 end
 
 function SWEP:Reload()
@@ -353,6 +353,7 @@ function SWEP:BaseDefaultReload(iActivity)
 	--pOwner->SetNextAttack( flSequenceEndTime );
 	self:SetNextPrimaryFire(flSequenceEndTime)
 	self:SetNextSecondaryFire(flSequenceEndTime)
+	--self:SetTimeWeaponIdle(flSequenceEndTime)
 
 	self:SetSaveValue( "m_bInReload", true )
 	
@@ -442,7 +443,7 @@ function SWEP:CheckReload()
 		if self:GetSaveTable().m_bInReload and CurTime()>=self:GetNextPrimaryFire() then
 			self:FinishReload()
 			self:SetNextPrimaryFire(CurTime())
-			self:SetNextPrimaryFire(CurTime())
+			self:SetNextSecondaryFire(CurTime())
 			self:SetSaveValue( "m_bInReload", false )
 		end
 	end
