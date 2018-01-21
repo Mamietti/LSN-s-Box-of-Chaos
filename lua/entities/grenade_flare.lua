@@ -5,16 +5,18 @@ DEFINE_BASECLASS( "base_anim" )
 
 ENT.PrintName = "FLARE"
 ENT.Author = "Strafe"
-ENT.Information = "An edible bouncy ball"
-ENT.Category = "Fun + Games"
+ENT.Information = "FLARE"
+ENT.Category = "NO"
 
-ENT.Editable = true
+ENT.Editable = false
 ENT.Spawnable = false
 ENT.AdminOnly = true
-ENT.RenderGroup = RENDERGROUP_TRANSLUCENT
+ENT.RenderGroup = RENDERGROUP_TRANSLUCENT 
 
 ENT.MinSize = 4
 ENT.MaxSize = 128
+
+local FLARE_DECAY_TIME = 3
 
 function ENT:Initialize()
 	if SERVER then
@@ -27,93 +29,119 @@ function ENT:Initialize()
 		self:SetFriction( 0.6 )
 		self:SetGravity( 1 )
 	end
-	--self:EmitSound("Weapon_FlareGun.Burn")
 	self.Sound = CreateSound(self,"Weapon_FlareGun.Burn")
 	self.Sound:Play()
 	self.m_flTimeBurnOut = CurTime() + 30
+	self.m_flNextDamage = CurTime()
+	self.m_nBounces = 0
+	self.BurnTouch = false
 	self:AddFlags(FL_OBJECT)
 	self:NextThink(CurTime() + 0.5)
+	if SERVER then
+		flare = ents.Create("env_flare")
+		flare:SetPos(self:GetPos())
+		flare:SetAngles(self:GetAngles())
+		flare:SetParent(self)
+		flare:SetOwner(self)
+		flare:Spawn()
+		--PrintTable(flare:GetSaveTable())
+	end
 end
 
 function ENT:Think()
+	deltatime = self.m_flTimeBurnOut - CurTime()
+	if deltatime <= FLARE_DECAY_TIME and !self.m_bFading then
+		self.m_bFading = true
+		self.Sound:ChangePitch(60, deltatime)
+		self.Sound:FadeOut(deltatime)
+	end
 	if SERVER then
 		if CurTime() > self.m_flTimeBurnOut then
-			self.Sound:Stop()
+			--self.Sound:Stop()
 			self:Remove()
+			return
 		end
 	end
 	if self:WaterLevel()>1 then
 	else
 		if math.random(0,8)==1 then
-			local effectdata = EffectData()
-			effectdata:SetOrigin( self:GetPos() )
-			effectdata:SetStart( self:GetPos() )
-			util.Effect( "Sparks", effectdata )
+			self:Sparks(self:GetPos())
 		end
 	end
 	self:NextThink(CurTime() + 0.5)
 	return true
 end
 
+function ENT:Sparks(pos)
+	local effectdata = EffectData()
+	effectdata:SetOrigin( pos )
+	effectdata:SetStart( pos )
+	effectdata:SetMagnitude( 1 )
+	util.Effect( "Sparks", effectdata )
+end
+
 function ENT:Draw()
-
-	local emitter = ParticleEmitter( self:GetPos(), true )
-
-	local Pos = Vector( math.Rand( -1, 1 ), math.Rand( -1, 1 ), math.Rand( -1, 1 ) )
-	local particle = emitter:Add( "particles/balloon_bit", self:GetPos() + Pos * 8 )
-	if ( particle ) then
-
-		particle:SetVelocity( Pos * 500 )
-
-		particle:SetLifeTime( 0 )
-		particle:SetDieTime( 10 )
-
-		particle:SetStartAlpha( 255 )
-		particle:SetEndAlpha( 255 )
-
-		local Size = math.Rand( 1, 3 )
-		particle:SetStartSize( Size )
-		particle:SetEndSize( 0 )
-
-		particle:SetRoll( math.Rand( 0, 360 ) )
-		particle:SetRollDelta( math.Rand( -2, 2 ) )
-
-		particle:SetAirResistance( 100 )
-		particle:SetGravity( Vector( 0, 0, -300 ) )
-
-		local RandDarkness = math.Rand( 0.8, 1.0 )
-		particle:SetColor( 255 * RandDarkness, 255 * RandDarkness, 255 * RandDarkness )
-
-		particle:SetCollide( true )
-
-		particle:SetAngleVelocity( Angle( math.Rand( -160, 160 ), math.Rand( -160, 160 ), math.Rand( -160, 160 ) ) )
-
-		particle:SetBounce( 1 )
-		particle:SetLighting( true )
-
-	end
-
-	emitter:Finish()
-	
-	local dlight = DynamicLight( self:EntIndex() )
-	if ( dlight ) then
-		dlight.pos = self:GetPos()
-		dlight.r = 255
-		dlight.g = 255
-		dlight.b = 255
-		dlight.brightness = 2
-		dlight.Decay = 1000
-		dlight.Size = 256
-		dlight.DieTime = CurTime() + 1
-	end
-	
-	self:DrawModel()qw
+	self:DrawModel()
 end
 
 function ENT:Touch(ent)
-	if IsValid(ent) then
+	if !self.BurnTouch then
 		if !ent:IsSolid() then
 			return
+		end
+		if self.m_nBounces < 10 and self:WaterLevel()<1 then
+			self:Sparks(self:GetPos())
+		end
+		if ent:GetSaveTable().m_takedamage > 0 then
+			ent:Ignite(30)
+			self:SetAbsVelocity(self:GetAbsVelocity() * 0.1)
+			self.m_flTimeBurnOut = 0.5
+		else
+			tr = self:GetTouchTrace() 
+			if self.m_nBounces == 0 then
+				impactDir = tr.HitPos - tr.StartPos
+				impactDir:Normalize()
+
+				surfDot = tr.HitNormal:Dot( impactDir )
+
+				if tr.HitNormal.z > -0.5 and surfDot < -0.9 then
+					self:RemoveSolidFlags( FSOLID_NOT_SOLID )
+					self:AddSolidFlags( FSOLID_TRIGGER )
+					self:SetPos(tr.HitPos + ( tr.HitNormal * 2.0 ) )
+					self:SetAbsVelocity(Vector(0,0,0))
+					self:SetMoveType( MOVETYPE_NONE )
+					
+					self.BurnTouch = true
+					util.Decal( "SmallScorch", tr.StartPos, tr.HitPos-tr.HitNormal, self )
+
+					self:EmitSound("Flare.Touch")
+
+					return
+				end
+			end
+			self.m_nBounces = self.m_nBounces + 1
+			self:SetOwner(self)
+			self:SetGravity( 1.5 )
+			vecNewVelocity = self:GetAbsVelocity()
+			vecNewVelocity.x = vecNewVelocity.x * 0.8
+			vecNewVelocity.y = vecNewVelocity.x * 0.8
+			self:SetAbsVelocity(vecNewVelocity)
+			if self:GetAbsVelocity():Length()<64 or self.m_nBounces == 3 then
+				self:SetAbsVelocity(Vector(0,0,0))
+				self:SetMoveType( MOVETYPE_NONE )
+				self:RemoveSolidFlags( FSOLID_NOT_SOLID )
+				self:AddSolidFlags( FSOLID_TRIGGER )
+				self.BurnTouch = true
+			end
+		end
+	else
+		if ent:GetSaveTable().m_takedamage and CurTime()>=self.m_flNextDamage then
+			d = DamageInfo()
+			d:SetDamage( 1 )
+			d:SetAttacker( self )
+			d:SetDamageType( bit.bor(DMG_BULLET, DMG_BURN) )
+			ent:TakeDamageInfo( d )
+			self.m_flNextDamage = CurTime() + 1
 		end
 	end
 end

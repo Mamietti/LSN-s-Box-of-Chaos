@@ -7,9 +7,9 @@ SWEP.UseHands			= true
 SWEP.Slot				= 2
 SWEP.SlotPos			= 2
 SWEP.DrawAmmo			= true
-SWEP.ViewModel			= "models/weapons/v_manhac_b.mdl"
+SWEP.ViewModel			= "models/weapons/c_manhack.mdl"
 SWEP.ViewModelFlip = false
-SWEP.WorldModel			= "models/weapons/w_manhac_rb.mdl"
+SWEP.WorldModel			= "models/weapons/w_manhack.mdl"
 SWEP.CSMuzzleFlashes	= false
 SWEP.HoldType			= "slam"
 SWEP.FiresUnderwater = false
@@ -40,14 +40,16 @@ function SWEP:PrimaryAttack()
             ent:SetOwner( self.Owner )
             ent:SetKeyValue( "spawnflags", 65536 + 256)
             ent:Spawn()
-            ent:SetSaveValue("m_bHackedByAlyx", true)
+			ent:SetSaveValue("m_bHackedByAlyx", true)
+			ent:Fire("SetSquad","player_squad",0)
+			ent:GetPhysicsObject():ApplyForceCenter(Forward*100+Vector(0,0,500))
             ent:AddRelationship( "npc_zombie D_HT 99" )
             ent:AddRelationship( "npc_zombie_torso D_HT 99" )
             ent:AddRelationship( "npc_fastzombie D_HT 99" )
             ent:AddRelationship( "npc_fastzombie_torso D_HT 99" )
             ent:AddRelationship( "npc_zombine D_HT 99" )
+			ent:SetSubMaterial(1, "models/weapons/manhack/manhack_sheet_r")
             ent:Fire("Unpack",0,0)
-            ent:GetPhysicsObject():ApplyForceCenter(Forward*100+Vector(0,0,500))
             self.NextDeploy = CurTime() + 1
             self:TakePrimaryAmmo(1)
             ent:Fire("InteractivePowerDown",0,30)

@@ -31,7 +31,7 @@ SWEP.AutoSwitchFrom		= false
 
 SWEP.m_bReloadsSingly = false
 
-SWEP.SINGLE = "Weapon_357.Single"
+SWEP.SINGLE = "Weapon_Flaregun.Single"
 SWEP.EMPTY = "Weapon_Pistol.Empty"
 SWEP.DEPLOY = ""
 SWEP.RELOAD = ""
