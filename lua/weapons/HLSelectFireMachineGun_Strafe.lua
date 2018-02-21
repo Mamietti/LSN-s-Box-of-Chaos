@@ -41,15 +41,15 @@ SWEP.BURST = "Weapon_Pistol.Burst"
 DEFINE_BASECLASS( "hlmachinegun_strafe" )
 
 function SWEP:Initialize()
-    self:SetNPCMinBurst( self.NPCMinBurst )
-    self:SetNPCMaxBurst( self.NPCMaxBurst )
-    self:SetNPCFireRate( self.Primary.FireRate )
-    self:SetNPCMinRest( self.NPCMinRest )
-    self:SetNPCMaxRest( self.NPCMaxRest )
-	self.m_fMinRange1 = 65
-	self.m_fMinRange2 = 65
-	self.m_fMaxRange1 = 1024
-	self.m_fMaxRange2 = 1024
+    self:SetNPCMinBurst( 3 )
+    self:SetNPCMaxBurst( 3 )
+    self:SetNPCFireRate( 0.05 )
+    self:SetNPCMinRest( 0 )
+    self:SetNPCMaxRest( 0 )
+	self:SetSaveValue("m_fMinRange1",65)
+	self:SetSaveValue("m_fMinRange2",65)
+	self:SetSaveValue("m_fMaxRange1",1024)
+	self:SetSaveValue("m_fMaxRange2",1024)
     self:SetHoldType(self.HoldType)
 	self:SetTimeWeaponIdle(CurTime())
 	self:SetNextEmptySoundTime(CurTime())

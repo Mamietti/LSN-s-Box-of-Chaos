@@ -42,6 +42,8 @@ SWEP.SINGLE = "Weapon_357.Single"
 SWEP.EMPTY = "Weapon_Pistol.Empty"
 SWEP.DEPLOY = ""
 SWEP.RELOAD = ""
+SWEP.SPECIAL1 = ""
+SWEP.SPECIAL2 = ""
 
 DEFINE_BASECLASS( "weapon_base" )
 
@@ -183,7 +185,7 @@ function SWEP:ItemPostFrame()
 		self:SetSaveValue( "m_fFireDuration", CurTime() - self.FireStart )
 	end
 	if !(self.Owner:KeyDown(IN_ATTACK) or self.Owner:KeyDown(IN_ATTACK2) or (self:CanReload() and self.Owner:KeyDown(IN_RELOAD))) then
-		if !self:ReloadOrSwitchWeapons() and self:GetSaveTable().m_bInReload == false then
+		if self:GetSaveTable().m_bInReload == false and !self:ReloadOrSwitchWeapons() then
 			self:WeaponIdle()
 		end
 	end
