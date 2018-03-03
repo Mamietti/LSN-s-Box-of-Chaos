@@ -11,7 +11,7 @@ SWEP.ViewModel			= "models/weapons/c_flaregun.mdl"
 SWEP.ViewModelFlip = false
 SWEP.WorldModel			= "models/weapons/w_flaregun.mdl"
 SWEP.CSMuzzleFlashes	= false
-SWEP.HoldType			= "knife"
+SWEP.HoldType			= "pistol"
 SWEP.FiresUnderwater = true
 SWEP.Base = "hlmachinegun_strafe"
 SWEP.ViewModelFOV = 55
@@ -59,5 +59,24 @@ function SWEP:DoPrimaryAttack()
 		end
 		self:WeaponSound(self.SINGLE)
 		
+	end
+end
+
+function SWEP:DrawWorldModel()
+	if not self.Owner:IsValid() then
+		self:DrawModel()
+	else
+		local hand, offset, rotate
+		hand = self.Owner:GetAttachment(self.Owner:LookupAttachment("anim_attachment_rh"))
+		offset = hand.Ang:Right() * 1 + hand.Ang:Forward() * 4.5 + hand.Ang:Up() * 3
+
+		hand.Ang:RotateAroundAxis(hand.Ang:Right(), 0)
+		hand.Ang:RotateAroundAxis(hand.Ang:Forward(), 90)
+		hand.Ang:RotateAroundAxis(hand.Ang:Up(), -90)
+
+		self:SetRenderOrigin(hand.Pos + offset)
+		self:SetRenderAngles(hand.Ang)
+
+		self:DrawModel()
 	end
 end

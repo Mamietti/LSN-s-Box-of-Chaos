@@ -11,7 +11,7 @@ SWEP.ViewModel			= "models/weapons/c_sniper.mdl"
 SWEP.ViewModelFlip = false
 SWEP.WorldModel			= "models/weapons/w_sniper.mdl"
 SWEP.CSMuzzleFlashes	= false
-SWEP.HoldType			= "knife"
+SWEP.HoldType			= "ar2"
 SWEP.FiresUnderwater = true
 SWEP.Base = "hlmachinegun_strafe"
 DEFINE_BASECLASS( "hlmachinegun_strafe" )

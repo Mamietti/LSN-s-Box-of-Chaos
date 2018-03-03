@@ -398,6 +398,7 @@ function SWEP:SendWeaponAnimIdeal(act)
 end
 
 function SWEP:SetIdealActivity(ideal)
+    if !self.Owner:IsPlayer() or !self.Owner:Alive() then return end
 	idealSequence = self:SelectWeightedSequence(ideal)
 	if idealSequence == -1 then
 		return false
@@ -614,13 +615,10 @@ function SWEP:SetupWeaponHoldTypeForAI( t )
 	self.ActivityTranslateAI [ ACT_IDLE_RELAXED ] 				= ACT_IDLE_SMG1_RELAXED
 	self.ActivityTranslateAI [ ACT_IDLE_STIMULATED ] 			= ACT_IDLE_SMG1_STIMULATED
 	self.ActivityTranslateAI [ ACT_IDLE_AGITATED ] 				= ACT_IDLE_ANGRY_SMG1
-
 	self.ActivityTranslateAI [ ACT_MP_RUN ] 					= ACT_HL2MP_RUN_SMG1
 	self.ActivityTranslateAI [ ACT_MP_CROUCHWALK ] 				= ACT_HL2MP_WALK_CROUCH_SMG1
-
 	self.ActivityTranslateAI [ ACT_RANGE_ATTACK1 ] 				= ACT_RANGE_ATTACK_SMG1
 	self.ActivityTranslateAI [ ACT_RANGE_ATTACK1_LOW ] 				= ACT_RANGE_ATTACK_SMG1_LOW
-
 	self.ActivityTranslateAI [ ACT_RELOAD ] 					= ACT_RELOAD_SMG1
 
 end
