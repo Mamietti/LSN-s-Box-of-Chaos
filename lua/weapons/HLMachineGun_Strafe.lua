@@ -18,7 +18,7 @@ SWEP.ViewModelFOV = 55
 
 SWEP.Primary.ClipSize		= 18
 SWEP.Primary.DefaultClip	= 6
-SWEP.Primary.Automatic		= false
+SWEP.Primary.Automatic		= true
 SWEP.Primary.Ammo			= "357"
 
 SWEP.Secondary.ClipSize		= -1
@@ -72,7 +72,6 @@ function SWEP:Initialize()
 	self:SetNextEmptySoundTime(CurTime())
 	self.m_nShotsFired = 0
     self.m_flRaiseTime = -3000
-    self.m_bInReload = false
 end
 
 function SWEP:UsesClipsForAmmo1()
@@ -174,9 +173,6 @@ function SWEP:CanPerformSecondaryAttack()
 	return (CurTime()>=self:GetNextPrimaryFire())
 end
 
-function SWEP:DryFire()
-end
-
 function SWEP:ItemPostFrame()
 	if !self.Owner then return end
 	if self:UsesClipsForAmmo1() then
@@ -189,63 +185,47 @@ function SWEP:ItemPostFrame()
 	if self.FireStart!=nil then
 		self:SetSaveValue( "m_fFireDuration", CurTime() - self.FireStart )
 	end
-    bFired = false
-    if self.Owner:KeyDown(IN_ATTACK2) and CurTime()>=self:GetNextSecondaryFire() then
-        if self:UsesSecondaryAmmo() and self:Ammo2()<=0 then
-            if CurTime > self:GetNextEmptySoundTime() then
-                self:WeaponSound(self.EMPTY)
-                temps = CurTime() + 0.5
-                self:SetNextSecondaryFire(temps)
-                self:SetNextEmptySoundTime(temps)
-            end
-        elseif self.Owner:WaterLevel()==3 and self.FiresUnderwater==false then
-            self:WeaponSound(self.EMPTY)
-            self:SetNextEmptySoundTime(CurTime() + 0.2)
-        else
-            bFired = self:ShouldBlockPrimaryFire()
-            self:DoSecondaryAttack()
-            if self:UsesClipsForAmmo2() then
-                if self:Clip1()<1 then
-                    self.Owner:RemoveAmmo( 1, self.Secondary.Ammo )
-                    self:SetClip1(self:Clip1()+1)
-                end
-            end
-        end
-    end
-    if !bFired and self.Owner:KeyDown(IN_ATTACK) and CurTime()>=self:GetNextPrimaryFire() then
-        if !self:IsMeleeWeapon() and ((self:UsesClipsForAmmo1() and self:Clip1()<=0) or (!self:UsesClipsForAmmo1() and self:Ammo1()<=0)) then
-            self:HandleFireOnEmpty()
-        elseif self.Owner:WaterLevel()==3 and self.FiresUnderwater==false then
-            self:WeaponSound(self.EMPTY)
-            self:SetNextPrimaryFire(CurTime() + 0.2)
-        else
-            if self.FireStart==nil then
-                self.FireStart = CurTime()
-            end
-            self:DoPrimaryAttack()
-        end
-    end
-    if self.Owner:KeyDown(IN_RELOAD) and self:UsesClipsForAmmo1() and !self.m_bInReload then
-		self:DoReload()
-		self:SetSaveValue( "m_fFireDuration", 0 )
-	end
 	if !(self.Owner:KeyDown(IN_ATTACK) or self.Owner:KeyDown(IN_ATTACK2) or (self:CanReload() and self.Owner:KeyDown(IN_RELOAD))) then
-		if self.m_bInReload == false and !self:ReloadOrSwitchWeapons() then
+		if self:GetSaveTable().m_bInReload == false and !self:ReloadOrSwitchWeapons() then
 			self:WeaponIdle()
 		end
 	end
 end
 
-function SWEP:ShouldBlockPrimaryFire()
-    return true
-end
-
 function SWEP:SecondaryAttack()
-    return false
+	if self:UsesSecondaryAmmo() and self:Ammo2()<=0 then
+		if CurTime > self:GetNextEmptySoundTime() then
+			self:WeaponSound(self.EMPTY)
+			temps = CurTime() + 0.5
+			self:SetNextSecondaryFire(temps)
+			self:SetNextEmptySoundTime(temps)
+		end
+	elseif self.Owner:WaterLevel()==3 and self.FiresUnderwater==false then
+		self:WeaponSound(self.EMPTY)
+		self:SetNextEmptySoundTime(CurTime() + 0.2)
+	else
+		self:DoSecondaryAttack()
+		if self:UsesClipsForAmmo2() then
+			if self:Clip1()<1 then
+				self.Owner:RemoveAmmo( 1, self.Secondary.Ammo )
+				self:SetClip1(self:Clip1()+1)
+			end
+		end
+	end
 end
 
 function SWEP:PrimaryAttack()
-
+	if !self:IsMeleeWeapon() and ((self:UsesClipsForAmmo1() and self:Clip1()<=0) or (!self:UsesClipsForAmmo1() and self:Ammo1()<=0)) then
+		self:HandleFireOnEmpty()
+	elseif self.Owner:WaterLevel()==3 and self.FiresUnderwater==false then
+		self:WeaponSound(self.EMPTY)
+		self:SetNextPrimaryFire(CurTime() + 0.2)
+	else
+		if self.FireStart==nil then
+			self.FireStart = CurTime()
+		end
+		self:DoPrimaryAttack()
+	end
 end
 
 function SWEP:HandleFireOnEmpty()
@@ -315,11 +295,14 @@ function SWEP:GetFireRate()
 end
 
 function SWEP:DoSecondaryAttack()
-	return false
+	--PrintTable(self:GetSaveTable())
 end
 
 function SWEP:Reload()
-    return false
+	if CurTime()>=self:GetNextPrimaryFire() and self:UsesClipsForAmmo1() and !self:GetSaveTable().m_bInReload then
+		self:DoReload()
+		self:SetSaveValue( "m_fFireDuration", 0 )
+	end
 end
 
 function SWEP:ReloadsSingly()
@@ -370,11 +353,12 @@ function SWEP:BaseDefaultReload(iActivity)
 	end
 
 	flSequenceEndTime = CurTime() + self.Owner:GetViewModel():SequenceDuration()
+	--pOwner->SetNextAttack( flSequenceEndTime );
 	self:SetNextPrimaryFire(flSequenceEndTime)
 	self:SetNextSecondaryFire(flSequenceEndTime)
 	--self:SetTimeWeaponIdle(flSequenceEndTime)
 
-	self.m_bInReload = true
+	self:SetSaveValue( "m_bInReload", true )
 	
 	return true
 end
@@ -385,12 +369,14 @@ function SWEP:WeaponIdle()
 			self:SendWeaponAnimIdeal(ACT_VM_IDLE_LOWERED)
 		elseif self:HasIdleTimeElapsed() then
 			self:SendWeaponAnimIdeal(ACT_VM_IDLE_LOWERED)
+			self:SetTimeWeaponIdle(CurTime() + self.Owner:GetViewModel():SequenceDuration())
 		end
 	else
 		if CurTime() > self.m_flRaiseTime and self:GetActivity() == ACT_VM_IDLE_LOWERED then
 			self:SendWeaponAnimIdeal(ACT_VM_IDLE)
 		elseif self:HasIdleTimeElapsed() then
 			self:SendWeaponAnimIdeal(ACT_VM_IDLE)
+			self:SetTimeWeaponIdle(CurTime() + self.Owner:GetViewModel():SequenceDuration())
 		end
 	end
 end
@@ -408,16 +394,38 @@ function SWEP:AddViewKick()
 end
 
 function SWEP:SendWeaponAnimIdeal(act)
-    self:SendWeaponAnim(act)
+	self:SendWeaponAnim(act)
+	self:SetIdealActivity(act)
+end
+
+function SWEP:SetIdealActivity(ideal)
+    if !self.Owner:IsPlayer() or !self.Owner:Alive() then return end
+	idealSequence = self:SelectWeightedSequence(ideal)
+	if idealSequence == -1 then
+		return false
+	end
+	self:SetSaveValue( "m_IdealActivity", ideal )
+	self:SetSaveValue( "m_nIdealSequence", idealSequence )
+	nextSequence = self:FindTransitionSequence( self:GetSequence(), idealSequence )
+	if ideal != ACT_VM_DRAW and self:IsWeaponVisible() and nextSequence!=idealSequence then
+		--self:SetActivity(ACT_TRANSITION)
+		self:SetSequence(nextSequence)
+		self:SendWeaponAnimIdeal(nextSequence)
+	else
+		--self:SetActivity(self.m_IdealActivity)
+		self:SetSequence(ideal)
+		self:SendWeaponAnimIdeal(idealSequence)
+	end
 	self:SetTimeWeaponIdle(CurTime() + self.Owner:GetViewModel():SequenceDuration())
+	return true
 end
 
 function SWEP:CheckReload()
 	if self:ReloadsSingly() then
 		if !self.Owner then return end
-		if self.m_bInReload and (CurTime()>=self:GetNextPrimaryFire()) then
+		if self:GetSaveTable().m_bInReload and (CurTime()>=self:GetNextPrimaryFire()) then
 			if self.Owner:KeyDown(IN_ATTACK) or self.Owner:KeyDown(IN_ATTACK2) and self:Clip1()>0 then
-				self.m_bInReload = false
+				self:SetSaveValue( "m_bInReload", false )
 				return
 			end
 		end
@@ -436,11 +444,11 @@ function SWEP:CheckReload()
 			return
 		end
 	else
-		if self.m_bInReload and CurTime()>=self:GetNextPrimaryFire() then
+		if self:GetSaveTable().m_bInReload and CurTime()>=self:GetNextPrimaryFire() then
 			self:FinishReload()
 			self:SetNextPrimaryFire(CurTime())
 			self:SetNextSecondaryFire(CurTime())
-			self.m_bInReload = false
+			self:SetSaveValue( "m_bInReload", false )
 		end
 	end
 end
@@ -459,9 +467,17 @@ function SWEP:FinishReload()
 			self.Owner:RemoveAmmo( secondary, self.Secondary.Ammo)
 		end
 		if self:GetSaveTable().m_bReloadsSingly then
-			self.m_bInReload = false
+			self:SetSaveValue( "m_bInReload", false )
 		end
 	end
+end
+
+function SWEP:GetMaxClip1()
+	return self.Primary.ClipSize
+end
+
+function SWEP:GetMaxClip2()
+	return self.Secondary.ClipSize
 end
 
 function SWEP:CanLower()
@@ -479,7 +495,18 @@ function SWEP:Lower()
 end
 
 function SWEP:Think()
+	self:MaintainIdealActivity()
 	self:ItemPostFrame()
+end
+
+function SWEP:MaintainIdealActivity()
+	if self:GetActivity() == ACT_TRANSITION then
+		if self:GetActivity() != self:GetSaveTable().m_IdealActivity or self:GetSequence() != self:GetSaveTable().m_IdealSequence() then
+			if self:IsViewModelSequenceFinished() then
+				self:SendWeaponAnimIdeal(self:GetSaveTable().m_IdealActivity)
+			end
+		end
+	end
 end
 
 function SWEP:IsViewModelSequenceFinished()
@@ -541,9 +568,9 @@ function SWEP:WeaponShouldBeLowered()
 		if self:GetSaveTable().m_bLowered then
 			return true
 		end
-		if self:IsWeaponLowered() then
-			return true
-		end
+		--if self:IsWeaponLowered() then
+			--return true
+		--end
 		if SERVER then
 			if game.GetGlobalState("friendly_encounter") == GLOBAL_ON then
 				return true
@@ -581,19 +608,20 @@ function SWEP:DoMachineGunKick( maxVerticleKickAngle, fireDurationTime, slideLim
 end
 
 function SWEP:SetupWeaponHoldTypeForAI( t )
+
 	self.ActivityTranslateAI = {}
-	self.ActivityTranslateAI [ ACT_IDLE ] 						= ACT_IDLE_SMG
-	self.ActivityTranslateAI [ ACT_IDLE_ANGRY ] 				= ACT_IDLE_ANGRY_SMG
-	self.ActivityTranslateAI [ ACT_RANGE_ATTACK1 ] 				= ACT_RANGE_ATTACK_SMG
-	self.ActivityTranslateAI [ ACT_RELOAD ] 					= ACT_RELOAD_SMG
-	self.ActivityTranslateAI [ ACT_WALK_AIM ] 					= ACT_WALK_AIM_SMG
-	self.ActivityTranslateAI [ ACT_RUN_AIM ] 					= ACT_RUN_AIM_SMG
-	self.ActivityTranslateAI [ ACT_GESTURE_RANGE_ATTACK1 ] 		= ACT_GESTURE_RANGE_ATTACK_SMG
-	self.ActivityTranslateAI [ ACT_RELOAD_LOW ] 				= ACT_RELOAD_SMG_LOW
-	self.ActivityTranslateAI [ ACT_RANGE_ATTACK1_LOW ] 			= ACT_RANGE_ATTACK_SMG_LOW
-	self.ActivityTranslateAI [ ACT_COVER_LOW ] 					= ACT_COVER_SMG_LOW
-	self.ActivityTranslateAI [ ACT_RANGE_AIM_LOW ] 				= ACT_RANGE_AIM_SMG_LOW
-	self.ActivityTranslateAI [ ACT_GESTURE_RELOAD ] 			= ACT_GESTURE_RELOAD_SMG
+	self.ActivityTranslateAI [ ACT_STAND ] 						= ACT_STAND
+	self.ActivityTranslateAI [ ACT_IDLE ] 						= ACT_IDLE_SMG1
+	self.ActivityTranslateAI [ ACT_IDLE_ANGRY ] 				= ACT_IDLE_ANGRY_SMG1
+	self.ActivityTranslateAI [ ACT_IDLE_RELAXED ] 				= ACT_IDLE_SMG1_RELAXED
+	self.ActivityTranslateAI [ ACT_IDLE_STIMULATED ] 			= ACT_IDLE_SMG1_STIMULATED
+	self.ActivityTranslateAI [ ACT_IDLE_AGITATED ] 				= ACT_IDLE_ANGRY_SMG1
+	self.ActivityTranslateAI [ ACT_MP_RUN ] 					= ACT_HL2MP_RUN_SMG1
+	self.ActivityTranslateAI [ ACT_MP_CROUCHWALK ] 				= ACT_HL2MP_WALK_CROUCH_SMG1
+	self.ActivityTranslateAI [ ACT_RANGE_ATTACK1 ] 				= ACT_RANGE_ATTACK_SMG1
+	self.ActivityTranslateAI [ ACT_RANGE_ATTACK1_LOW ] 				= ACT_RANGE_ATTACK_SMG1_LOW
+	self.ActivityTranslateAI [ ACT_RELOAD ] 					= ACT_RELOAD_SMG1
+
 end
 
 --[[
