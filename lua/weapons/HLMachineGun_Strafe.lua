@@ -295,7 +295,7 @@ function SWEP:GetFireRate()
 end
 
 function SWEP:DoSecondaryAttack()
-	--PrintTable(self:GetSaveTable())
+	return false
 end
 
 function SWEP:Reload()
@@ -353,10 +353,8 @@ function SWEP:BaseDefaultReload(iActivity)
 	end
 
 	flSequenceEndTime = CurTime() + self.Owner:GetViewModel():SequenceDuration()
-	--pOwner->SetNextAttack( flSequenceEndTime );
 	self:SetNextPrimaryFire(flSequenceEndTime)
 	self:SetNextSecondaryFire(flSequenceEndTime)
-	--self:SetTimeWeaponIdle(flSequenceEndTime)
 
 	self:SetSaveValue( "m_bInReload", true )
 	
@@ -568,9 +566,9 @@ function SWEP:WeaponShouldBeLowered()
 		if self:GetSaveTable().m_bLowered then
 			return true
 		end
-		--if self:IsWeaponLowered() then
-			--return true
-		--end
+		if self:IsWeaponLowered() then
+			return true
+		end
 		if SERVER then
 			if game.GetGlobalState("friendly_encounter") == GLOBAL_ON then
 				return true

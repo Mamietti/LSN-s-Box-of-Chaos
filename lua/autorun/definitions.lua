@@ -1,4 +1,3 @@
---SOMETHINGS
 local Category = ""
 local function ADD_ITEM( name, class )
 
@@ -6,7 +5,6 @@ local function ADD_ITEM( name, class )
 	duplicator.Allow( class )
 
 end
-------
 
 Category = "Half-Life 2"
 ADD_ITEM( "Flare Ammo", "item_flare_round" )
@@ -92,3 +90,17 @@ sound.Add( {
 	pitch = { 95, 110 },
 	sound = "weapons/pknife/pulseknife_hit.wav"
 } )
+
+hook.Add( "PlayerCanPickupWeapon", "SwitchPlayerWeapon", function( ply, wep )
+	if wep:GetClass() == "weapon_annabelle" then
+		ply:Give( "weapon_annabelle_player" )
+		wep:Remove()
+		return false
+	end
+	if wep:GetClass() == "weapon_alyxgun" then
+		ply:Give( "weapon_alyxgun_player" )
+		wep:Remove()
+		return false
+	end
+end )
+
