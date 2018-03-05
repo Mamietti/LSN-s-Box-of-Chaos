@@ -34,8 +34,6 @@ SWEP.m_bReloadsSingly = false
 SWEP.SINGLE = "Weapon_Crowbar.Single"
 SWEP.MELEE_HIT = "Weapon_Crowbar.Melee_Hit"
 
---DEFINE_BASECLASS( "hlmachinegun_strafe" )
-
 SWEP.BLUDGEON_HULL_DIM = 16
 
 function SWEP:Initialize()

@@ -18,7 +18,7 @@ SWEP.ViewModelFOV = 55
 
 SWEP.Primary.ClipSize		= 18
 SWEP.Primary.DefaultClip	= 6
-SWEP.Primary.Automatic		= true
+SWEP.Primary.Automatic		= false
 SWEP.Primary.Ammo			= "357"
 
 SWEP.Secondary.ClipSize		= -1
@@ -71,6 +71,7 @@ function SWEP:Initialize()
 	self:SetTimeWeaponIdle(CurTime())
 	self:SetNextEmptySoundTime(CurTime())
 	self.m_nShotsFired = 0
+    self.m_flRaiseTime = -3000
 end
 
 function SWEP:UsesClipsForAmmo1()
@@ -172,6 +173,9 @@ function SWEP:CanPerformSecondaryAttack()
 	return (CurTime()>=self:GetNextPrimaryFire())
 end
 
+function SWEP:DryFire()
+end
+
 function SWEP:ItemPostFrame()
 	if !self.Owner then return end
 	if self:UsesClipsForAmmo1() then
@@ -184,6 +188,46 @@ function SWEP:ItemPostFrame()
 	if self.FireStart!=nil then
 		self:SetSaveValue( "m_fFireDuration", CurTime() - self.FireStart )
 	end
+    bFired = false
+    if self.Owner:KeyDown(IN_ATTACK2) and CurTime()>=self:GetNextSecondaryFire() then
+        if self:UsesSecondaryAmmo() and self:Ammo2()<=0 then
+            if CurTime > self:GetNextEmptySoundTime() then
+                self:WeaponSound(self.EMPTY)
+                temps = CurTime() + 0.5
+                self:SetNextSecondaryFire(temps)
+                self:SetNextEmptySoundTime(temps)
+            end
+        elseif self.Owner:WaterLevel()==3 and self.FiresUnderwater==false then
+            self:WeaponSound(self.EMPTY)
+            self:SetNextEmptySoundTime(CurTime() + 0.2)
+        else
+            bFired = self:ShouldBlockPrimaryFire()
+            self:DoSecondaryAttack()
+            if self:UsesClipsForAmmo2() then
+                if self:Clip1()<1 then
+                    self.Owner:RemoveAmmo( 1, self.Secondary.Ammo )
+                    self:SetClip1(self:Clip1()+1)
+                end
+            end
+        end
+    end
+    if !bFired and self.Owner:KeyDown(IN_ATTACK) and CurTime()>=self:GetNextPrimaryFire() then
+        if !self:IsMeleeWeapon() and ((self:UsesClipsForAmmo1() and self:Clip1()<=0) or (!self:UsesClipsForAmmo1() and self:Ammo1()<=0)) then
+            self:HandleFireOnEmpty()
+        elseif self.Owner:WaterLevel()==3 and self.FiresUnderwater==false then
+            self:WeaponSound(self.EMPTY)
+            self:SetNextPrimaryFire(CurTime() + 0.2)
+        else
+            if self.FireStart==nil then
+                self.FireStart = CurTime()
+            end
+            self:DoPrimaryAttack()
+        end
+    end
+    if self.Owner:KeyDown(IN_RELOAD) and self:UsesClipsForAmmo1() and !self:GetSaveTable().m_bInReload then
+		self:DoReload()
+		self:SetSaveValue( "m_fFireDuration", 0 )
+	end
 	if !(self.Owner:KeyDown(IN_ATTACK) or self.Owner:KeyDown(IN_ATTACK2) or (self:CanReload() and self.Owner:KeyDown(IN_RELOAD))) then
 		if self:GetSaveTable().m_bInReload == false and !self:ReloadOrSwitchWeapons() then
 			self:WeaponIdle()
@@ -191,40 +235,16 @@ function SWEP:ItemPostFrame()
 	end
 end
 
+function SWEP:ShouldBlockPrimaryFire()
+    return true
+end
+
 function SWEP:SecondaryAttack()
-	if self:UsesSecondaryAmmo() and self:Ammo2()<=0 then
-		if CurTime > self:GetNextEmptySoundTime() then
-			self:WeaponSound(self.EMPTY)
-			temps = CurTime() + 0.5
-			self:SetNextSecondaryFire(temps)
-			self:SetNextEmptySoundTime(temps)
-		end
-	elseif self.Owner:WaterLevel()==3 and self.FiresUnderwater==false then
-		self:WeaponSound(self.EMPTY)
-		self:SetNextEmptySoundTime(CurTime() + 0.2)
-	else
-		self:DoSecondaryAttack()
-		if self:UsesClipsForAmmo2() then
-			if self:Clip1()<1 then
-				self.Owner:RemoveAmmo( 1, self.Secondary.Ammo )
-				self:SetClip1(self:Clip1()+1)
-			end
-		end
-	end
+    return false
 end
 
 function SWEP:PrimaryAttack()
-	if !self:IsMeleeWeapon() and ((self:UsesClipsForAmmo1() and self:Clip1()<=0) or (!self:UsesClipsForAmmo1() and self:Ammo1()<=0)) then
-		self:HandleFireOnEmpty()
-	elseif self.Owner:WaterLevel()==3 and self.FiresUnderwater==false then
-		self:WeaponSound(self.EMPTY)
-		self:SetNextPrimaryFire(CurTime() + 0.2)
-	else
-		if self.FireStart==nil then
-			self.FireStart = CurTime()
-		end
-		self:DoPrimaryAttack()
-	end
+
 end
 
 function SWEP:HandleFireOnEmpty()
@@ -294,14 +314,11 @@ function SWEP:GetFireRate()
 end
 
 function SWEP:DoSecondaryAttack()
-	--PrintTable(self:GetSaveTable())
+	return false
 end
 
 function SWEP:Reload()
-	if CurTime()>=self:GetNextPrimaryFire() and self:UsesClipsForAmmo1() and !self:GetSaveTable().m_bInReload then
-		self:DoReload()
-		self:SetSaveValue( "m_fFireDuration", 0 )
-	end
+    return false
 end
 
 function SWEP:ReloadsSingly()
@@ -352,7 +369,6 @@ function SWEP:BaseDefaultReload(iActivity)
 	end
 
 	flSequenceEndTime = CurTime() + self.Owner:GetViewModel():SequenceDuration()
-	--pOwner->SetNextAttack( flSequenceEndTime );
 	self:SetNextPrimaryFire(flSequenceEndTime)
 	self:SetNextSecondaryFire(flSequenceEndTime)
 	--self:SetTimeWeaponIdle(flSequenceEndTime)
@@ -366,13 +382,15 @@ function SWEP:WeaponIdle()
 	if self:WeaponShouldBeLowered() then
 		if !table.HasValue({ACT_VM_IDLE_LOWERED,ACT_VM_IDLE_TO_LOWERED,ACT_TRANSITION},self:GetActivity()) then
 			self:SendWeaponAnimIdeal(ACT_VM_IDLE_LOWERED)
+			self:SetTimeWeaponIdle(CurTime() + self.Owner:GetViewModel():SequenceDuration())
 		elseif self:HasIdleTimeElapsed() then
 			self:SendWeaponAnimIdeal(ACT_VM_IDLE_LOWERED)
 			self:SetTimeWeaponIdle(CurTime() + self.Owner:GetViewModel():SequenceDuration())
 		end
 	else
-		if CurTime() > self:GetSaveTable().m_flRaiseTime and self:GetActivity() == ACT_VM_IDLE_LOWERED then
+		if CurTime() > self.m_flRaiseTime and self:GetActivity() == ACT_VM_IDLE_LOWERED then
 			self:SendWeaponAnimIdeal(ACT_VM_IDLE)
+			self:SetTimeWeaponIdle(CurTime() + self.Owner:GetViewModel():SequenceDuration())
 		elseif self:HasIdleTimeElapsed() then
 			self:SendWeaponAnimIdeal(ACT_VM_IDLE)
 			self:SetTimeWeaponIdle(CurTime() + self.Owner:GetViewModel():SequenceDuration())
@@ -524,7 +542,7 @@ function SWEP:Ready()
 		return false
 	end
 	self:SetSaveValue( "m_bLowered", false )
-	self:SetSaveValue( "m_flRaiseTime", CurTime() + 0.5 )
+	self.m_flRaiseTime = CurTime() + 0.5
 	return true
 end
 

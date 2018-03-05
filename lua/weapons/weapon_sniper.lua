@@ -62,7 +62,6 @@ function SWEP:Initialize()
     BaseClass.Initialize(self)
     self.m_fNextZoom = CurTime()
 	self.m_nZoomLevel = 0
-    --self:SetSaveValue("m_bReloadsSingly",true)
 	self:SetSaveValue("m_fMinRange1",65)
 	self:SetSaveValue("m_fMinRange2",65)
 	self:SetSaveValue("m_fMaxRange1",1024)
@@ -80,7 +79,7 @@ function SWEP:Holster()
 end
 
 function SWEP:GetDamage()
-    return 100
+    return GetConVar("sk_plr_dmg_sniper_round"):GetInt()
 end
 
 function SWEP:GetFireRate()
