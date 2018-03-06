@@ -225,6 +225,9 @@ function SWEP:FillClip()
 	end
 end
 
+function SWEP:Reload()
+end
+
 function SWEP:Pump()
 	if self.Owner then
         self.m_bNeedPump = false

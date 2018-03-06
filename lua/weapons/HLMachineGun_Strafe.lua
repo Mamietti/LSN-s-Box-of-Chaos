@@ -355,6 +355,8 @@ function SWEP:BaseDefaultReload(iActivity)
 	flSequenceEndTime = CurTime() + self.Owner:GetViewModel():SequenceDuration()
 	self:SetNextPrimaryFire(flSequenceEndTime)
 	self:SetNextSecondaryFire(flSequenceEndTime)
+    self:SetTimeWeaponIdle(flSequenceEndTime)
+    
 
 	self:SetSaveValue( "m_bInReload", true )
 	
@@ -367,14 +369,12 @@ function SWEP:WeaponIdle()
 			self:SendWeaponAnimIdeal(ACT_VM_IDLE_LOWERED)
 		elseif self:HasIdleTimeElapsed() then
 			self:SendWeaponAnimIdeal(ACT_VM_IDLE_LOWERED)
-			self:SetTimeWeaponIdle(CurTime() + self.Owner:GetViewModel():SequenceDuration())
 		end
 	else
 		if CurTime() > self.m_flRaiseTime and self:GetActivity() == ACT_VM_IDLE_LOWERED then
 			self:SendWeaponAnimIdeal(ACT_VM_IDLE)
 		elseif self:HasIdleTimeElapsed() then
 			self:SendWeaponAnimIdeal(ACT_VM_IDLE)
-			self:SetTimeWeaponIdle(CurTime() + self.Owner:GetViewModel():SequenceDuration())
 		end
 	end
 end
@@ -392,7 +392,7 @@ function SWEP:AddViewKick()
 end
 
 function SWEP:SendWeaponAnimIdeal(act)
-	self:SendWeaponAnim(act)
+    self:SendWeaponAnim(act)
 	self:SetIdealActivity(act)
 end
 
@@ -406,11 +406,9 @@ function SWEP:SetIdealActivity(ideal)
 	self:SetSaveValue( "m_nIdealSequence", idealSequence )
 	nextSequence = self:FindTransitionSequence( self:GetSequence(), idealSequence )
 	if ideal != ACT_VM_DRAW and self:IsWeaponVisible() and nextSequence!=idealSequence then
-		--self:SetActivity(ACT_TRANSITION)
 		self:SetSequence(nextSequence)
 		self:SendWeaponAnimIdeal(nextSequence)
 	else
-		--self:SetActivity(self.m_IdealActivity)
 		self:SetSequence(ideal)
 		self:SendWeaponAnimIdeal(idealSequence)
 	end
