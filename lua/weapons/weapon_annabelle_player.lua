@@ -34,6 +34,7 @@ SWEP.SINGLE = "Weapon_Shotgun.Single"
 SWEP.EMPTY = "Weapon_Shotgun.Empty"
 SWEP.RELOAD = "Weapon_Shotgun.Reload"
 SWEP.SPECIAL1 = "Weapon_Shotgun.Special1"
+SWEP.m_bReloadsSingly = true
 
 function SWEP:Initialize()
     self:SetNPCMinBurst( 3 )
@@ -55,17 +56,41 @@ function SWEP:Initialize()
 end
 
 function SWEP:DoPrimaryAttack()
-    BaseClass.DoPrimaryAttack(self)
-    --if self:Clip1()>0 then
-        self.m_bNeedPump = true
-    --end
+	if self.Owner then
+        self:WeaponSound(self.SINGLE)
+
+        self:MuzzleFlash()
+
+        self:SendWeaponAnimIdeal( ACT_VM_PRIMARYATTACK );
+
+        self.Owner:SetAnimation( PLAYER_ATTACK1 );
+
+        self:SetNextPrimaryFire(CurTime() + self.Owner:GetViewModel():SequenceDuration())
+        self:SetClip1(self:Clip1()-1)
+
+        local bullet = {}
+		bullet.Src 		= self.Owner:GetShootPos()			-- Source
+		bullet.Dir 		= self.Owner:GetAimVector()			-- Dir of bullet
+		bullet.Spread 	= self:GetBulletSpread()		-- Aim Cone
+		bullet.Tracer	= 0									-- Show a tracer on every x bullets 
+		bullet.AmmoType = self.Primary.Ammo
+		bullet.Damage = self:GetDamage()
+		self.Owner:FireBullets(bullet)
+        
+        self.Owner:ViewPunch( Angle( math.Rand( -2, -1 ), math.Rand( -2, 2 ), 0 ) )
+
+        if self:Clip1()>0 then
+            self.m_bNeedPump = true
+        end
+    end
 end
+
 function SWEP:GetDamage()
     return GetConVar("sk_plr_dmg_357"):GetInt()
 end
 
 function SWEP:GetFireRate()
-    return 0.4
+    return 0.7
 end
 
 function SWEP:OnDrop()
@@ -87,6 +112,10 @@ function SWEP:StartReload()
 
 	if self:Clip1() >= self:GetMaxClip1() then
 		return false
+    end
+    
+    if self:Clip1() <= 0 then
+        self.m_bNeedPump = true
     end
 
 	j = math.min(1, self:Ammo1())
@@ -133,7 +162,7 @@ function SWEP:ItemPostFrame()
     end
     if self.m_bDelayedFire1 and CurTime()>=self:GetNextPrimaryFire() then
         self.m_bDelayedFire1 = false
-        self:PrimaryAttack()
+        self:DoPrimaryAttack()
     end
 	if self.Owner:KeyDown(IN_RELOAD) and self:UsesClipsForAmmo1() and !self.m_bInReload then
 		self:StartReload()
@@ -155,7 +184,7 @@ end
 
 function SWEP:PrimaryAttack()
     if (self:Clip1() <= 0 and self:UsesClipsForAmmo1()) or (!self:UsesClipsForAmmo1() and self:Ammo1()>0 ) then
-        if self:Ammo1() then
+        if self:Ammo1()<=0 then
             self:DryFire()
         else
             self:StartReload()

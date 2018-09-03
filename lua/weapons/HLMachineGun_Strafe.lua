@@ -371,9 +371,9 @@ function SWEP:WeaponIdle()
 			self:SendWeaponAnimIdeal(ACT_VM_IDLE_LOWERED)
 		end
 	else
-		if CurTime() > self.m_flRaiseTime and self:GetActivity() == ACT_VM_IDLE_LOWERED then
-			self:SendWeaponAnimIdeal(ACT_VM_IDLE)
-		elseif self:HasIdleTimeElapsed() then
+        if CurTime() > self.m_flRaiseTime and self:GetActivity() == ACT_VM_IDLE_LOWERED then
+            self:SendWeaponAnimIdeal(ACT_VM_IDLE)
+        elseif self:HasIdleTimeElapsed() then
 			self:SendWeaponAnimIdeal(ACT_VM_IDLE)
 		end
 	end
@@ -393,27 +393,7 @@ end
 
 function SWEP:SendWeaponAnimIdeal(act)
     self:SendWeaponAnim(act)
-	self:SetIdealActivity(act)
-end
-
-function SWEP:SetIdealActivity(ideal)
-    if !self.Owner:IsPlayer() or !self.Owner:Alive() then return end
-	idealSequence = self:SelectWeightedSequence(ideal)
-	if idealSequence == -1 then
-		return false
-	end
-	self:SetSaveValue( "m_IdealActivity", ideal )
-	self:SetSaveValue( "m_nIdealSequence", idealSequence )
-	nextSequence = self:FindTransitionSequence( self:GetSequence(), idealSequence )
-	if ideal != ACT_VM_DRAW and self:IsWeaponVisible() and nextSequence!=idealSequence then
-		self:SetSequence(nextSequence)
-		self:SendWeaponAnimIdeal(nextSequence)
-	else
-		self:SetSequence(ideal)
-		self:SendWeaponAnimIdeal(idealSequence)
-	end
-	self:SetTimeWeaponIdle(CurTime() + self.Owner:GetViewModel():SequenceDuration())
-	return true
+    self:SetTimeWeaponIdle(CurTime() + self.Owner:GetViewModel():SequenceDuration())
 end
 
 function SWEP:CheckReload()
@@ -491,7 +471,6 @@ function SWEP:Lower()
 end
 
 function SWEP:Think()
-	self:MaintainIdealActivity()
 	self:ItemPostFrame()
 end
 
@@ -531,7 +510,7 @@ function SWEP:Deploy()
 			if self:CanLower() then
 				self:SetSaveValue( "m_bLowered", true)
 				self:SetNextPrimaryFire(CurTime() + 1.0)
-				self:SetNextPrimaryFire(CurTime() + 1.0)
+				self:SetNextSecondaryFire(CurTime() + 1.0)
 				return true
 			end
 		end
