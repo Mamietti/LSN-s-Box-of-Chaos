@@ -1,6 +1,6 @@
 SWEP.PrintName			= "Assault Banana"
 SWEP.Author			= "Strafe"
-SWEP.Category	= "AAAAA"
+SWEP.Category	= "Strafe Fun"
 SWEP.Spawnable			= true
 SWEP.AdminOnly			= false
 SWEP.UseHands			= true
